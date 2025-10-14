@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>Añadir Prenda</title>
+<style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+        h1 { text-align: center; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        label { font-weight: bold; }
+        input, select, textarea { padding: 10px; font-size: 16px; width: 100%; }
+        .two-columns { display: flex; gap: 10px; }
+        .two-columns > * { flex: 1; }
+        button {
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body style="font-family: 'Segoe UI', sans-serif; max-width: 900px; margin: auto; padding: 40px; background-color: #f8f8f8; border-radius: 8px;">
+<h1 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">Añadir Prenda</h1>
+<form id="productForm" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 20px;">
+<label>Nombre</label>
+<input name="name" required="" type="text" placeholder="Nombre de la prenda"/>
+<label>Descripción</label>
+<input name="description" type="text" placeholder="Descripción de la prenda"/>
+<div class="two-columns">
+<div>
+<label>Género</label>
+<select id="genderSelect" name="gender" required="">
+<option value="">Seleccionar</option>
+<option value="Hombre">Hombre</option>
+<option value="Mujer">Mujer</option>
+</select>
+</div>
+<div>
+<label>Categoría</label>
+<select id="categorySelect" name="category" required=""></select>
+</div>
+</div>
+<label>Tallas disponibles</label>
+<select id="sizeSelect" multiple="" name="sizes" required=""></select>
+<style>
+    .price-wrapper {
+        display: flex;
+        align-items: center;
+    }
+    .price-wrapper span {
+        padding-right: 6px;
+        font-weight: bold;
+    }
+</style>
+<label for="price">Precio</label>
+<div class="price-wrapper">
+<span>S/</span>
+<input id="price" name="price_base" placeholder="0.00" required type="text" inputmode="decimal" pattern="^\d{1,3}(\.\d{1,2})?$" title="Ingrese un precio entre 0 y 999.99">
+</input></div>
+<div>
+<label>Seleccionar colores</label>
+<div class="color-palette" id="colorPalette"></div>
+</div>
+<style>
+    .color-palette {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .color-box {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .color-box:hover {
+        outline: 2px solid #666;
+    }
+    .color-box.selected {
+        border-color: #000;
+        outline: 2px solid #000;
+    }
+</style>
+<label>URL de imagen</label>
+<input name="image" placeholder="https://ejemplo.com/imagen.jpg" required="" type="url"/>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+const predefinedColors = [
+        { name: "Negro", code: "#000000" },
+        { name: "Blanco", code: "#FFFFFF" },
+        { name: "Gris claro", code: "#D3D3D3" },
+        { name: "Gris oscuro", code: "#555555" },
+        { name: "Azul marino", code: "#001F3F" },
+        { name: "Beige", code: "#F5F5DC" },
+        { name: "Verde militar", code: "#4B5320" },
+        { name: "Verde oscuro", code: "#006400" },
+        { name: "Rojo", code: "#FF0000" },
+        { name: "Rosado", code: "#FFC0CB" },
+        { name: "Marrón", code: "#8B4513" },
+        { name: "Celeste", code: "#87CEEB" },
+        { name: "Amarillo", code: "#FFFF00" },
+        { name: "Naranja", code: "#FFA500" }
+        
+    ];
+
+    const palette = document.getElementById("colorPalette");
+    predefinedColors.forEach(color => {
+        const div = document.createElement("div");
+        div.className = "color-box";
+        div.style.backgroundColor = color.code;
+        div.title = color.name;
+        div.dataset.name = color.name;
+        div.dataset.code = color.code;
+        div.addEventListener("click", () => {
+            div.classList.toggle("selected");
+        });
+        palette.appendChild(div);
+    });
+
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+const categories = {
+                Hombre: {
+                    superiores: ["Polo", "Camisa", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"],
+                    inferiores: ["Pantalón", "Jeans", "Short"]
+                },
+                Mujer: {
+                    superiores: ["Polo", "Blusa", "Top", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"],
+                    inferiores: ["Pantalón", "Jeans", "Short", "Falda", "Leggins"]
+                }
+            };
+
+            const tallasSuperiores = ["XS", "S", "M", "L", "XL", "2XL"];
+            const tallasInferiores = ["28", "30", "32", "34", "36", "38", "40", "42", "44"];
+
+            const genderSelect = document.getElementById("genderSelect");
+            const categorySelect = document.getElementById("categorySelect");
+            const sizeSelect = document.getElementById("sizeSelect");
+
+            genderSelect.addEventListener("change", updateCategoryOptions);
+            categorySelect.addEventListener("change", updateSizeOptions);
+
+            function updateCategoryOptions() {
+                const gender = genderSelect.value;
+                categorySelect.innerHTML = "";
+                if (!gender) return;
+
+                const options = [
+                    ...categories[gender].superiores.map(cat => ({ cat, tipo: "superior" })),
+                    ...categories[gender].inferiores.map(cat => ({ cat, tipo: "inferior" }))
+                ];
+
+                for (const opt of options) {
+                    const option = document.createElement("option");
+                    option.value = opt.cat;
+                    option.dataset.tipo = opt.tipo;
+                    option.textContent = opt.cat;
+                    categorySelect.appendChild(option);
+                }
+
+                updateSizeOptions(); // actualizar tallas inmediatamente
+            }
+
+            function updateSizeOptions() {
+                const selectedOption = categorySelect.selectedOptions[0];
+                sizeSelect.innerHTML = "";
+                if (!selectedOption) return;
+
+                const tipo = selectedOption.dataset.tipo;
+                const tallas = tipo === "superior" ? tallasSuperiores : tallasInferiores;
+                tallas.forEach(talla => {
+                    const opt = document.createElement("option");
+                    opt.value = talla;
+                    opt.textContent = talla;
+                    sizeSelect.appendChild(opt);
+                });
+            }
+        
+});
+</script>
+<button onmouseout="this.style.backgroundColor='#007bff'" onmouseover="this.style.backgroundColor='#0056b3'" style="padding: 12px; background-color: #007bff; color: white; font-weight: bold; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;" type="submit">Añadir</button>
+</form>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+const priceInput = document.getElementById("price");
+
+    priceInput.addEventListener("input", () => {
+priceInput.addEventListener("blur", () => {
+    const val = parseFloat(priceInput.value);
+    if (isNaN(val) || val < 0 || val > 999.99) {
+        priceInput.setCustomValidity("El precio debe estar entre 0 y 999.99");
+    } else {
+        priceInput.setCustomValidity("");
+    }
+});
+
+        let val = priceInput.value.replace(/[^\d.]/g, "");
+        const parts = val.split(".");
+        if (parts.length > 2) {
+            val = parts[0] + "." + parts[1]; // evita más de un punto decimal
+        }
+        if (parts[1]?.length > 2) {
+            parts[1] = parts[1].slice(0, 2);
+            val = parts[0] + "." + parts[1];
+        }
+        priceInput.value = val;
+    });
+
+    document.getElementById("productForm").addEventListener("submit", function(e) {
+        const priceVal = priceInput.value;
+        const valid = /^\d{1,3}(\.\d{2})$/.test(priceVal);
+        if (!valid) {
+            alert("Por favor ingrese un precio válido en formato 0.00 (máximo 3 dígitos enteros y 2 decimales).");
+            e.preventDefault();
+        }
+    });
+
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+document.getElementById("productForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user || !user.token || !user.isAdmin) {
+        alert("No autorizado. Solo los administradores pueden añadir productos.");
+        return;
+    }
+
+    const form = e.target;
+    const rawPrice = document.getElementById("price").value.replace(",", "");
+    const price = parseFloat(rawPrice);
+    const selectedColors = [...document.querySelectorAll(".color-box.selected")].map(box => ({
+        name: box.dataset.name,
+        code: box.dataset.code
+    }));
+
+    
+    const data = {
+        name: form.name.value,
+        description: form.description.value,
+        category: form.category.value,
+        gender: form.gender.value,
+        colors_json: JSON.stringify(selectedColors),
+        sizes: [...form.sizes.selectedOptions].map(opt => opt.value),
+        price_base: price,
+        stock: 1,
+        image: form.image.value
+    };
+    
+
+    const res = await fetch("/api/products", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${user.token}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+    if (res.ok) {
+        console.log("Respuesta del servidor:", result);
+        alert("Producto añadido con éxito. SKU: " + result.sku);
+        form.reset();
+        genderSelect.value = "";
+        categorySelect.innerHTML = "";
+        sizeSelect.innerHTML = "";
+        document.querySelectorAll(".color-box.selected").forEach(box => box.classList.remove("selected"));
+    } else {
+        alert("Error al añadir producto: " + (result.error || "Desconocido"));
+    }
+});
+
+});
+</script>
+</body>
+</html>

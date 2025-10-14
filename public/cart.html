@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Carrito de Compras</h1>
+    </header>
+
+    <main>
+        <section class="section" id="cartItemsSection">
+            <!-- Los elementos del carrito aparecerán aquí -->
+        </section>
+        
+        <button id="checkoutButton" onclick="checkout()">Pagar</button>
+    </main>
+    
+    <footer>
+        &copy; 2025 UrbanStyle
+    </footer>
+
+    <script src="script.js">
+
+function displayCart() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const section = document.getElementById('cartItemsSection');
+    const checkoutButton = document.getElementById('checkoutButton');
+
+    section.innerHTML = '';
+
+    if (cart.length === 0) {
+        section.innerHTML = '<p>No hay productos en el carrito.</p>';
+        checkoutButton.style.display = 'none';
+        return;
+    }
+
+    let total = 0;
+    cart.forEach((item, index) => {
+        total += parseFloat(item.price_base || 0);
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" style="width:100px; height:auto; border-radius:4px;">
+            <p><strong>${item.name}</strong></p>
+            <p>Talla: ${item.selectedSize}</p>
+            <p>Color: <span style="display:inline-block;width:15px;height:15px;border-radius:3px;background-color:${item.selectedColor.code}"></span> ${item.selectedColor.name}</p>
+            <p>Precio: S/ ${parseFloat(item.price_base).toFixed(2)}</p>
+            <button onclick="removeFromCart(${index})" style="margin-top:5px;">Eliminar</button>
+            <hr>
+        `;
+        section.appendChild(div);
+    });
+
+    const totalDiv = document.createElement('div');
+    totalDiv.innerHTML = '<h3>Total: S/ ' + total.toFixed(2) + '</h3>';
+    section.appendChild(totalDiv);
+
+    checkoutButton.style.display = 'inline-block';
+}
+
+
+function removeFromCart(index) {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    displayCart();
+}
+
+
+function checkout() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (cart.length === 0) return;
+
+    if (confirm("¿Deseas confirmar la compra?")) {
+        localStorage.removeItem('cart');
+        document.getElementById('cartItemsSection').innerHTML = "<h2>¡Gracias por su compra!</h2><p>Su pedido ha sido procesado con éxito.</p>";
+        document.getElementById('checkoutButton').style.display = "none";
+    }
+}
+
+</script>
+    <script>
+        // Llamada para mostrar el carrito al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCart();
+        });
+    
+
+function displayCart() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const section = document.getElementById('cartItemsSection');
+    const checkoutButton = document.getElementById('checkoutButton');
+
+    section.innerHTML = '';
+
+    if (cart.length === 0) {
+        section.innerHTML = '<p>No hay productos en el carrito.</p>';
+        checkoutButton.style.display = 'none';
+        return;
+    }
+
+    let total = 0;
+    cart.forEach((item, index) => {
+        total += parseFloat(item.price_base || 0);
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" style="width:100px; height:auto; border-radius:4px;">
+            <p><strong>${item.name}</strong></p>
+            <p>Talla: ${item.selectedSize}</p>
+            <p>Color: <span style="display:inline-block;width:15px;height:15px;border-radius:3px;background-color:${item.selectedColor.code}"></span> ${item.selectedColor.name}</p>
+            <p>Precio: S/ ${parseFloat(item.price_base).toFixed(2)}</p>
+            <button onclick="removeFromCart(${index})" style="margin-top:5px;">Eliminar</button>
+            <hr>
+        `;
+        section.appendChild(div);
+    });
+
+    const totalDiv = document.createElement('div');
+    totalDiv.innerHTML = '<h3>Total: S/ ' + total.toFixed(2) + '</h3>';
+    section.appendChild(totalDiv);
+
+    checkoutButton.style.display = 'inline-block';
+}
+
+
+function removeFromCart(index) {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    displayCart();
+}
+
+
+function checkout() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (cart.length === 0) return;
+
+    if (confirm("¿Deseas confirmar la compra?")) {
+        localStorage.removeItem('cart');
+        document.getElementById('cartItemsSection').innerHTML = "<h2>¡Gracias por su compra!</h2><p>Su pedido ha sido procesado con éxito.</p>";
+        document.getElementById('checkoutButton').style.display = "none";
+    }
+}
+
+</script>
+<!-- Reemplaza el contenido actual de <script> al final del body con lo siguiente: -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        displayCart();
+    });
+
+    function displayCart() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const section = document.getElementById('cartItemsSection');
+        const checkoutButton = document.getElementById('checkoutButton');
+
+        section.innerHTML = '';
+
+        if (cart.length === 0) {
+            section.innerHTML = '<p>No hay productos en el carrito.</p>';
+            checkoutButton.style.display = 'none';
+            return;
+        }
+
+        let total = 0;
+        cart.forEach((item, index) => {
+            total += parseFloat(item.price_base || 0) * (item.quantity || 1);
+
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `
+                <img src="${item.image}" alt="${item.name}" style="width:100px; height:auto; border-radius:4px;">
+                <p><strong>${item.name}</strong></p>
+                <p>Talla: ${item.selectedSize}</p>
+                <p>Color: <span style="display:inline-block;width:15px;height:15px;border-radius:3px;background-color:${item.selectedColor.code}"></span> ${item.selectedColor.name}</p>
+                <p>Precio unitario: S/ ${parseFloat(item.price_base).toFixed(2)}</p>
+                <div>
+                    <button onclick="updateQuantity(${index}, -1)">−</button>
+                    <span style="margin: 0 10px;">${item.quantity || 1}</span>
+                    <button onclick="updateQuantity(${index}, 1)">+</button>
+                </div>
+                <p>Subtotal: S/ ${(parseFloat(item.price_base || 0) * (item.quantity || 1)).toFixed(2)}</p>
+                <button onclick="removeFromCart(${index})" style="margin-top:5px;">Eliminar</button>
+                <hr>
+            `;
+            section.appendChild(div);
+        });
+
+        const totalDiv = document.createElement('div');
+        totalDiv.innerHTML = '<h3>Total: S/ ' + total.toFixed(2) + '</h3>';
+        section.appendChild(totalDiv);
+
+        checkoutButton.style.display = 'inline-block';
+    }
+
+    function updateQuantity(index, delta) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const item = cart[index];
+
+        if (!item.quantity) item.quantity = 1;
+        item.quantity += delta;
+
+        if (item.quantity < 1) item.quantity = 1;
+
+        cart[index] = item;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        displayCart();
+    }
+
+    function removeFromCart(index) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        displayCart();
+    }
+
+    function checkout() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart.length === 0) return;
+
+        if (confirm("¿Deseas confirmar la compra?")) {
+            localStorage.removeItem('cart');
+            document.getElementById('cartItemsSection').innerHTML = "<h2>¡Gracias por su compra!</h2><p>Su pedido ha sido procesado con éxito.</p>";
+            document.getElementById('checkoutButton').style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>
