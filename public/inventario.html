@@ -91,24 +91,28 @@
             transform: scale(1.05);
         }
 
-        input[type="text"], input[type="number"], select {
+        input[type="text"],
+        input[type="number"],
+        select {
             padding: 6px;
             border-radius: 4px;
             border: 1px solid #ccc;
             font-size: 12px;
         }
-        
+
         select[multiple] {
             padding: 4px;
             font-size: 11px;
         }
-        
-        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
             border-color: #1976d2;
             outline: none;
             box-shadow: 0 0 3px rgba(25, 118, 210, 0.3);
         }
-        
+
         .delete-btn {
             padding: 6px 10px;
             background-color: #c62828;
@@ -119,12 +123,12 @@
             margin-left: 5px;
             transition: all 0.3s ease;
         }
-        
+
         .delete-btn:hover {
             background-color: #8e0000;
             transform: scale(1.05);
         }
-        
+
         /* Estilos para la paleta de colores */
         .color-palette {
             display: flex;
@@ -139,7 +143,7 @@
             max-height: 80px;
             overflow-y: auto;
         }
-        
+
         .color-box {
             width: 20px;
             height: 20px;
@@ -149,17 +153,17 @@
             transition: 0.2s;
             position: relative;
         }
-        
+
         .color-box:hover {
             outline: 2px solid #666;
             transform: scale(1.1);
         }
-        
+
         .color-box.selected {
             border-color: #000;
             outline: 2px solid #000;
         }
-        
+
         .color-box.selected::after {
             content: "✓";
             position: absolute;
@@ -170,7 +174,7 @@
             font-weight: bold;
             font-size: 10px;
         }
-        
+
         .colors-container {
             position: relative;
             display: inline-block;
@@ -235,7 +239,7 @@
                     const fields = ["name", "description", "category", "gender", "colors_json", "sizes", "price_base", "stock"];
                     fields.forEach((field, i) => {
                         const td = document.createElement("td");
-                        
+
                         // Manejo especial para colores - mostrar solo los nombres
                         if (field === "colors_json") {
                             let colorsDisplay = "—";
@@ -253,7 +257,7 @@
                         } else {
                             td.textContent = product[field] ?? "—";
                         }
-                        
+
                         td.setAttribute("contenteditable", "false");
                         td.setAttribute("data-field", field);
                         tr.appendChild(td);
@@ -279,15 +283,15 @@
                     editBtn.addEventListener("click", () => {
                         const isEditing = editBtn.textContent === "Guardar";
                         const tds = tr.querySelectorAll("td");
-                        
+
                         if (!isEditing) {
                             // Entrar en modo edición
                             for (let i = 0; i < tds.length; i++) {
                                 if (i === 8) continue; // SKU no editable
                                 if (i === 10) continue; // Acciones no editables
-                                
+
                                 const field = tds[i].getAttribute("data-field");
-                                
+
                                 if (i === 9) { // Campo imagen
                                     const currentUrl = tds[i].querySelector("span")?.textContent || "";
                                     tds[i].innerHTML = `<input type="text" placeholder="URL de imagen" value="${currentUrl}" style="width: 150px;">`;
@@ -300,14 +304,14 @@
                                     } catch (e) {
                                         selectedColorNames = [];
                                     }
-                                    
+
                                     tds[i].innerHTML = `
                                         <div class="colors-container">
                                             <div class="color-palette" data-original="${originalJson}"></div>
                                             <small style="font-size: 10px; color: #666;">Click para seleccionar</small>
                                         </div>
                                     `;
-                                    
+
                                     const palette = tds[i].querySelector(".color-palette");
                                     createColorPalette(palette, selectedColorNames);
                                 } else if (field === "price_base") { // Campo precio
@@ -337,18 +341,18 @@
                                     tds[i].innerHTML = `<input type="text" value="${currentText}" style="width: 100px;">`;
                                 }
                             }
-                            
+
                             // Agregar event listeners para actualización dinámica
                             const genderSelect = tds[3].querySelector("select");
                             const categorySelect = tds[2].querySelector("select");
                             const sizeSelect = tds[5].querySelector("select");
-                            
+
                             if (genderSelect && categorySelect) {
                                 genderSelect.addEventListener("change", () => {
                                     const newGender = genderSelect.value;
                                     const currentCategory = categorySelect.value;
                                     updateCategorySelect(categorySelect, newGender, currentCategory);
-                                    
+
                                     // Actualizar tallas también
                                     if (sizeSelect) {
                                         const newCategory = categorySelect.value;
@@ -356,14 +360,14 @@
                                     }
                                 });
                             }
-                            
+
                             if (categorySelect && sizeSelect) {
                                 categorySelect.addEventListener("change", () => {
                                     const newCategory = categorySelect.value;
                                     updateSizeSelect(sizeSelect, newCategory, "");
                                 });
                             }
-                            
+
                             editBtn.textContent = "Guardar";
                             editBtn.style.backgroundColor = "#4caf50";
                         } else {
@@ -398,41 +402,41 @@
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify(updatedProduct)
                                 })
-                                .then(res => res.json())
-                                .then(resp => {
-                                    if (resp.success) {
-                                        // Volver a modo vista
-                                        tds[0].textContent = updatedProduct.name;
-                                        tds[1].textContent = updatedProduct.description;
-                                        tds[2].textContent = updatedProduct.category;
-                                        tds[3].textContent = updatedProduct.gender;
-                                        
-                                        // Mostrar colores como nombres
-                                        try {
-                                            const colors = JSON.parse(updatedProduct.colors_json);
-                                            tds[4].textContent = colors.map(c => c.name).join(", ");
-                                            tds[4].setAttribute("data-original", updatedProduct.colors_json);
-                                        } catch (e) {
-                                            tds[4].textContent = "Sin colores";
-                                            tds[4].setAttribute("data-original", "[]");
+                                    .then(res => res.json())
+                                    .then(resp => {
+                                        if (resp.success) {
+                                            // Volver a modo vista
+                                            tds[0].textContent = updatedProduct.name;
+                                            tds[1].textContent = updatedProduct.description;
+                                            tds[2].textContent = updatedProduct.category;
+                                            tds[3].textContent = updatedProduct.gender;
+
+                                            // Mostrar colores como nombres
+                                            try {
+                                                const colors = JSON.parse(updatedProduct.colors_json);
+                                                tds[4].textContent = colors.map(c => c.name).join(", ");
+                                                tds[4].setAttribute("data-original", updatedProduct.colors_json);
+                                            } catch (e) {
+                                                tds[4].textContent = "Sin colores";
+                                                tds[4].setAttribute("data-original", "[]");
+                                            }
+
+                                            tds[5].textContent = updatedProduct.sizes;
+                                            tds[6].textContent = `S/ ${updatedProduct.price_base}`;
+                                            tds[7].textContent = updatedProduct.stock;
+                                            tds[9].innerHTML = updatedProduct.image ?
+                                                `<img src="${updatedProduct.image}" width="50"><br><span style="display:none;">${updatedProduct.image}</span>` :
+                                                "Sin imagen";
+
+                                            editBtn.textContent = "Editar";
+                                            editBtn.style.backgroundColor = "#1976d2";
+                                        } else {
+                                            alert("Error al guardar: " + resp.error);
                                         }
-                                        
-                                        tds[5].textContent = updatedProduct.sizes;
-                                        tds[6].textContent = `S/ ${updatedProduct.price_base}`;
-                                        tds[7].textContent = updatedProduct.stock;
-                                        tds[9].innerHTML = updatedProduct.image ? 
-                                            `<img src="${updatedProduct.image}" width="50"><br><span style="display:none;">${updatedProduct.image}</span>` : 
-                                            "Sin imagen";
-                                        
-                                        editBtn.textContent = "Editar";
-                                        editBtn.style.backgroundColor = "#1976d2";
-                                    } else {
-                                        alert("Error al guardar: " + resp.error);
-                                    }
-                                })
-                                .catch(err => {
-                                    alert("Error al guardar: " + err.message);
-                                });
+                                    })
+                                    .catch(err => {
+                                        alert("Error al guardar: " + err.message);
+                                    });
                             } catch (error) {
                                 alert("Error en los datos: " + error.message);
                             }
@@ -551,7 +555,7 @@
 
         // Función para obtener código de color por nombre
         function getColorCode(colorName) {
-            const color = predefinedColors.find(c => 
+            const color = predefinedColors.find(c =>
                 c.name.toLowerCase() === colorName.toLowerCase().trim()
             );
             return color ? color.code : "#CCCCCC";
@@ -560,7 +564,7 @@
         // Función para crear paleta de colores
         function createColorPalette(container, selectedColors = []) {
             container.innerHTML = "";
-            
+
             predefinedColors.forEach(color => {
                 const div = document.createElement("div");
                 div.className = "color-box";
@@ -568,16 +572,16 @@
                 div.title = color.name;
                 div.dataset.name = color.name;
                 div.dataset.code = color.code;
-                
+
                 // Marcar como seleccionado si está en la lista
                 if (selectedColors.includes(color.name)) {
                     div.classList.add("selected");
                 }
-                
+
                 div.addEventListener("click", () => {
                     div.classList.toggle("selected");
                 });
-                
+
                 container.appendChild(div);
             });
         }

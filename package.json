@@ -18,7 +18,7 @@
     "test": "jest",
     "test:login": "mocha tests/login.selenium.test.js --timeout 60000",
     "test:login-credentials": "mocha tests/login.selenium.test.js --timeout 60000 --grep \"TC-001\"",
-    "test:login-validation": "mocha tests/login.selenium.test.js --timeout 60000 --grep \"TC-002\"", 
+    "test:login-validation": "mocha tests/login.selenium.test.js --timeout 60000 --grep \"TC-002\"",
     "test:login-toggle": "mocha tests/login.selenium.test.js --timeout 60000 --grep \"TC-003\"",
     "test:crud": "mocha tests/crud.selenium.test.js --timeout 60000",
     "test:crud-add": "mocha tests/crud.selenium.test.js --timeout 60000 --grep \"TC-004\"",

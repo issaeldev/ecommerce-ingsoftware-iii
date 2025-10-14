@@ -16,7 +16,7 @@ function updateCartCount() {
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(sessionStorage.getItem('user'));
 
-    
+
     // Ocultar "Iniciar sesión" y "Registrarse" si ya hay sesión iniciada
     const loginLink = document.querySelector('a[href="login.html"]');
     const registerLink = document.querySelector('a[href="register.html"]');
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Colores
             const colors = JSON.parse(product.colors_json || '[]');
-            const colorBoxes = colors.map(color => 
+            const colorBoxes = colors.map(color =>
                 `<div class="color-box selectable-color" 
                     style="background-color: ${color.code}" 
                     data-name="${color.name}" 
@@ -187,9 +187,9 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(productDiv);
         });
     };
-    
-        
-        
+
+
+
 
     if (document.getElementById('products')) {
         loadProducts();
@@ -236,11 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function addToCart(item) {
-const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
     cart.push(item);
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
-    
+
     showToast('Agregaste una prenda al carrito');
 }
 
@@ -294,7 +294,7 @@ function renderFilteredProducts(products) {
         productDiv.className = 'product';
 
         const colors = JSON.parse(product.colors_json || '[]');
-        const colorBoxes = colors.map(color => 
+        const colorBoxes = colors.map(color =>
             `<div class="color-box selectable-color" 
                 style="background-color: ${color.code}" 
                 data-name="${color.name}" 
@@ -359,7 +359,7 @@ function renderFilteredProducts(products) {
 
 
 let allProducts = [];
-window.loadProducts = async function() {
+window.loadProducts = async function () {
     const res = await fetch('/api/products');
     allProducts = await res.json();
     renderFilteredProducts(allProducts);

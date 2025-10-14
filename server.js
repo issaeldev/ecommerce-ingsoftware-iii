@@ -32,7 +32,7 @@ app.post('/api/register', (req, res) => {
 
     const params = [email, hashed, name, lastname, document_type, document_number, phone];
 
-    db.run(sql, params, function(err) {
+    db.run(sql, params, function (err) {
         if (err) {
             console.error("Error al registrar:", err.message);
             return res.status(400).json({ error: 'Error al registrar usuario o usuario ya existe' });
@@ -44,10 +44,10 @@ app.post('/api/register', (req, res) => {
 // Login
 app.post('/api/login', (req, res) => {
     const { email, password } = req.body;
-    
+
     // Validar campos requeridos
     if (!email || !password) {
-        return res.status(400).json({ 
+        return res.status(400).json({
             error: 'Todos los campos son obligatorios',
             details: !email ? 'El campo correo es obligatorio' : 'El campo contraseña es obligatorio'
         });
@@ -58,18 +58,18 @@ app.post('/api/login', (req, res) => {
             console.error('Error en base de datos:', err);
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
-        
+
         // Usuario no encontrado
         if (!user) {
-            return res.status(401).json({ 
+            return res.status(401).json({
                 error: 'El correo electrónico no está registrado',
                 field: 'email'
             });
         }
-        
+
         // Contraseña incorrecta
         if (!bcrypt.compareSync(password, user.password)) {
-            return res.status(401).json({ 
+            return res.status(401).json({
                 error: 'La contraseña es incorrecta',
                 field: 'password'
             });
@@ -131,7 +131,7 @@ app.put('/api/products/:id', (req, res) => {
     db.run(
         'UPDATE products SET name=?, description=?, category=?, gender=?, colors_json=?, sizes=?, price_base=?, stock=?, image=? WHERE id=?',
         [name, description, category, gender, colors_json, sizes, price_base, stock, image, id],
-        function(err) {
+        function (err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ success: true });
         }
@@ -146,7 +146,7 @@ app.delete('/api/products/:id', authenticateToken, (req, res) => {
     }
 
     const productId = req.params.id;
-    db.run('DELETE FROM products WHERE id = ?', [productId], function(err) {
+    db.run('DELETE FROM products WHERE id = ?', [productId], function (err) {
         if (err) {
             console.error("Error al eliminar producto:", err.message);
             return res.status(500).json({ error: err.message });
@@ -174,6 +174,6 @@ function authenticateToken(req, res, next) {
         req.user = user;
         next();
     });
-    
+
 }
 module.exports = app;
