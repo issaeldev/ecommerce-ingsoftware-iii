@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Detalle de Compra</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background-color: #34495e;
+      color: #ecf0f1;
+      font-weight: 500;
+    }
+    tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Detalle de Compra</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>ID Detalle</th>
+        <th>ID Orden</th>
+        <th>ID Producto</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+      </tr>
+    </thead>
+    <tbody id="detalleCompraBody"></tbody>
+  </table>
+  <script>
+    fetch('/api/detalle_compra')
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById("detalleCompraBody");
+        tbody.innerHTML = "";
+        data.forEach(detalle => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${detalle.id}</td>
+                          <td>${detalle.id_orden}</td>
+                          <td>${detalle.id_producto}</td>
+                          <td>${detalle.cantidad}</td>
+                          <td>S/ ${detalle.precio_unitario}</td>`;
+          tbody.appendChild(tr);
+        });
+      });
+  </script>
+</body>
+</html>

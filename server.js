@@ -158,6 +158,50 @@ app.delete('/api/products/:id', authenticateToken, (req, res) => {
     });
 });
 
+// Orden de compra
+app.get('/api/orden_compra', authenticateToken, (req, res) => {
+    console.log('LLEGA POST ORDEN', req.body);
+    if (!req.user.isAdmin) {
+        return res.status(403).json({ error: 'No autorizado. Solo el admin puede acceder.' });
+    }
+    db.all('SELECT * FROM orden_compra', [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// Detalle de compra
+app.get('/api/detalle_compra', (req, res) => {
+    db.all('SELECT * FROM detalle_compra', [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// Registrar nueva orden de compra y sus detalles
+app.post('/api/orden_compra', authenticateToken, (req, res) => {
+    const { id_usuario, total, items } = req.body;
+    db.run(
+        'INSERT INTO orden_compra (fecha, id_usuario, total) VALUES (?, ?, ?)',
+        [new Date().toISOString(), id_usuario, total],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            const ordenId = this.lastID;
+            let errors = [];
+            items.forEach(item => {
+                db.run(
+                    'INSERT INTO detalle_compra (id_orden, id_producto, cantidad, precio_unitario) VALUES (?, ?, ?, ?)',
+                    [ordenId, item.id, item.quantity, item.price_base],
+                    function(e) {
+                        if (e) errors.push(e.message);
+                    }
+                );
+            });
+            if (errors.length) return res.status(500).json({ error: errors });
+            res.json({ success: true });
+        }
+    );
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
@@ -166,14 +210,18 @@ app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return res.sendStatus(401);
-
+    if (!token) {
+        console.warn('TOKEN FALTANTE');
+        return res.status(401).json({ error: "Token faltante" });
+    }
     jwt.verify(token, SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        console.log('Usuario autenticado:', user); // Log para depuración
+        if (err) {
+            console.warn('TOKEN INVÁLIDO', token);
+            return res.status(403).json({ error: "Token inválido" });
+        }
+        console.log('Usuario autenticado:', user);
         req.user = user;
         next();
     });
-
 }
 module.exports = app;

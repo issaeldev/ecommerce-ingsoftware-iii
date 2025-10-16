@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Mostrar el enlace "Detalle de Compra" si hay usuario logueado
+    const detalleCompraLink = document.getElementById('detalleCompraLink');
+    if (detalleCompraLink && user) {
+        detalleCompraLink.style.display = 'list-item';
+    }
+
 
     // Mostrar enlace "Gestionar" si es administrador
     const adminLink = document.getElementById('adminLink');
@@ -45,6 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const path = window.location.pathname;
+
+    // Mostrar enlace "Orden de Compra" si es administrador
+    const ordenCompraLink = document.getElementById('ordenCompraLink');
+    if (ordenCompraLink && user && user.isAdmin) {
+        ordenCompraLink.style.display = 'list-item';
+    }
 
     // Protege el admin.html
     if (path.includes('admin.html')) {
