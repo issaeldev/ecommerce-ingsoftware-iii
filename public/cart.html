@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        .cart-item {
+            display: flex; 
+            align-items: flex-start;
+            gap: 25px; 
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .cart-item img {
+            width: 150px; 
+            height: auto;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        .item-details {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .item-details p {
+            margin: 2px 0;
+        }
+        .quantity-controls {
+            display: flex; 
+            align-items: center;
+            margin-top: 10px; 
+            margin-bottom: 10px; 
+        }
+        .quantity-controls button {
+            padding: 5px 10px;
+            margin: 0 5px;
+        }
+        .subtotal-and-delete {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            width: 100%; 
+            margin-top: 10px;
+        }
+        .subtotal-and-delete p {
+            margin: 0; 
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header><h1>Carrito de Compras</h1></header>
+    <main>
+        <section id="cartItemsSection"></section>
+        <div id="cartSummarySection" style="display: none;">
+            <div class="cart-summary">
+                <div class="total-row">
+                    <span>Total:</span>
+                    <span id="totalAmount">S/ 0.00</span>
+                </div>
+                <button id="checkoutButton" onclick="checkout()">Pagar</button>
+            </div>
+        </div>
+    </main>
+    <footer>&copy; 2025 UrbanStyle</footer>
+
+    <script>
+        function displayCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const section = document.getElementById('cartItemsSection');
+            const summarySection = document.getElementById('cartSummarySection');
+            const totalAmountEl = document.getElementById('totalAmount');
+            section.innerHTML = '';
+            if (cart.length === 0) {
+                section.innerHTML = '<p>No hay productos en el carrito.</p>';
+                summarySection.style.display = 'none';
+                return;
+            }
+            let total = 0;
+            cart.forEach((item, index) => {
+                const itemQuantity = item.quantity || 1;
+                const itemPrice = parseFloat(item.price_base) || 0;
+                const subtotal = itemPrice * itemQuantity;
+                total += subtotal;
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="item-details">
+                        <p class="item-name">${item.name || 'Producto'}</p>
+                        <p>Talla: ${item.selectedSize || 'N/A'}</p>
+                        <p>Color: <span style="display:inline-block;width:15px;height:15px;border-radius:50%;background-color:${item.selectedColor ? item.selectedColor.code : '#ccc'}"></span> ${item.selectedColor ? item.selectedColor.name : 'N/A'}</p>
+                        <p>Precio unitario: S/ ${itemPrice.toFixed(2)}</p>
+                        <div class="quantity-controls">
+                            <button onclick="updateQuantity(${index}, -1)">−</button>
+                            <span style="margin:0 15px;">${itemQuantity}</span>
+                            <button onclick="updateQuantity(${index}, 1)">+</button>
+                        </div>
+                        <div class="subtotal-and-delete">
+                            <p class="subtotal-text">S/ ${subtotal.toFixed(2)}</p>
+                            <button class="delete-btn" onclick="removeFromCart(${index})">Eliminar</button>
+                        </div>
+                    </div>`;
+                section.appendChild(div);
+            });
+            totalAmountEl.textContent = `S/ ${total.toFixed(2)}`;
+            summarySection.style.display = 'block';
+        }
+
+        function updateQuantity(index, delta) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (!cart[index]) return;
+            cart[index].quantity = (cart[index].quantity || 1) + delta;
+            if (cart[index].quantity < 1) cart[index].quantity = 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCart();
+        }
+
+        function removeFromCart(index) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCart();
+        }
+
+        function checkout() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const user = JSON.parse(sessionStorage.getItem('user')) || null;
+            if (cart.length === 0 || !user || !user.token) {
+                alert("Debes iniciar sesión y tener productos en el carrito.");
+                return;
+            }
+            const total = cart.reduce((acc, item) => acc + (parseFloat(item.price_base || 0) * (item.quantity || 1)), 0);
+            if (confirm("¿Deseas confirmar la compra por un total de S/ " + total.toFixed(2) + "?")) {
+                fetch('/api/orden_compra', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` },
+                    body: JSON.stringify({
+                        total,
+                        items: cart.map(item => ({ id: item.id, quantity: item.quantity || 1, price_base: item.price_base }))
+                    })
+                })
+                .then(response => {
+                    if (response.ok) return response.json();
+                    return response.json().then(err => { throw new Error(err.error || 'Error del servidor.'); });
+                })
+                .then(data => {
+                    localStorage.removeItem('cart');
+                    if (user.isAdmin) {
+                        alert('¡Compra realizada con éxito como Administrador!');
+                        displayCart();
+                    } else {
+                        alert('¡Compra realizada con éxito!');
+                        window.location.href = 'index.html';
+                    }
+                })
+                .catch(err => {
+                    alert("Error al procesar la compra: " + err.message);
+                });
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', displayCart);
+    </script>
+</body>
+</html>

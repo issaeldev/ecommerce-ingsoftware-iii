@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>
+    UrbanStyle
+  </title>
+  <link href="styles.css" rel="stylesheet" />
+  <style>
+    .catalog-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .product {
+      flex: 0 1 calc(30% - 20px);
+      box-sizing: border-box;
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 360px;
+    }
+
+    .product img {
+      width: 100%;
+      max-height: 300px;
+      border-radius: 10px;
+    }
+
+    .product h3 {
+      font-size: 1.1em;
+      margin: 10px 0 5px 0;
+      text-align: center;
+    }
+
+    .product p {
+      margin: 4px 0;
+    }
+
+    .price {
+      color: #d00;
+      font-weight: bold;
+      margin-top: auto;
+    }
+
+    .color-box {
+      width: 4px;
+      height: 10px;
+      display: inline-block;
+      border: 1px solid #999;
+      margin-right: 5px;
+      border-radius: 4px;
+    }
+
+
+    .selectable-color,
+    .selectable-size {
+      display: inline-block;
+      padding: 5px 10px;
+      margin: 4px;
+      border: 1px solid #999;
+      cursor: pointer;
+      border-radius: 4px;
+      user-select: none;
+    }
+
+    .selectable-color.selected,
+    .selectable-size.selected {
+      outline: 3px solid #007BFF;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>
+      UrbanStyle
+    </h1>
+    <nav>
+      <ul>
+        <li class="dropdown" id="adminLink" style="display: none;">
+          <a href="#">
+            Gestionar
+          </a>
+          <div class="dropdown-content">
+            <a href="add-product.html">
+              Añadir producto
+            </a>
+            <a href="inventario.html">
+              Ver inventario
+            </a>
+          </div>
+        </li>
+        <li id="ordenCompraLink" style="display: none;">
+          <a href="orden_compra.html">Orden de Compra</a>
+        </li>
+        <li id="detalleCompraLink" style="display: none;">
+          <a href="detalle_compra.html">Detalle de Compra</a>
+        </li>
+        <li id="logoutLink" style="display: none;">
+          <a href="#">
+            Cerrar sesión
+          </a>
+        </li>
+        <li>
+          <a href="login.html">
+            Iniciar Sesión
+          </a>
+        </li>
+        <li>
+          <a href="register.html">
+            Registrarse
+          </a>
+        </li>
+        <li style="position: relative;">
+          <a href="cart.html" style="display: flex; align-items: center;">
+            🛒
+            <span id="cartCount" style="
+      background-color: red;
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 12px;
+      margin-left: 5px;
+      position: absolute;
+      top: -8px;
+      right: -10px;
+    ">0</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section class="filters" style="margin: 20px; display: flex; gap: 15px; align-items: center;">
+      <label for="filterGender">
+        Género:
+      </label>
+      <select id="filterGender">
+        <option value="all">
+          Todos
+        </option>
+        <option value="Hombre">
+          Hombre
+        </option>
+        <option value="Mujer">
+          Mujer
+        </option>
+      </select>
+      <label for="filterCategory">
+        Categoría:
+      </label>
+      <select id="filterCategory">
+        <option value="all">
+          Todas
+        </option>
+        <option value="Polo">
+          Polo
+        </option>
+        <option value="Camiseta">
+          Camiseta
+        </option>
+        <option value="Blusa">
+          Blusa
+        </option>
+        <option value="Jeans">
+          Jeans
+        </option>
+        <option value="Falda">
+          Falda
+        </option>
+        <option value="Short">
+          Short
+        </option>
+        <option value="Casaca">
+          Casaca
+        </option>
+        <option value="Top">
+          Top
+        </option>
+        <option value="Blazer">
+          Blazer
+        </option>
+        <option value="Saco">
+          Saco
+        </option>
+        <option value="Chaleco">
+          Chaleco
+        </option>
+      </select>
+      <button onclick="applyFilters()">
+        Filtrar
+      </button>
+    </section>
+    <section class="catalog-container" id="products">
+      <!-- Productos serán generados dinámicamente -->
+    </section>
+  </main>
+  <footer>
+    © 2025 UrbanStyle
+  </footer>
+  <script src="script.js">
+  </script>
+  <script>
+    const categorias = {
+      Hombre: {
+        superiores: ["Polo", "Camisa", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"],
+        inferiores: ["Pantalón", "Jeans", "Short"]
+      },
+      Mujer: {
+        superiores: ["Polo", "Blusa", "Top", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"],
+        inferiores: ["Pantalón", "Jeans", "Short", "Falda", "Leggins"]
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const genderSelect = document.getElementById("filterGender");
+      const categorySelect = document.getElementById("filterCategory");
+
+      genderSelect.addEventListener("change", () => {
+        const selectedGender = genderSelect.value;
+        categorySelect.innerHTML = '<option value="all">Todas</option>';
+
+        if (categorias[selectedGender]) {
+          const opciones = [...categorias[selectedGender].superiores, ...categorias[selectedGender].inferiores];
+          opciones.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c;
+            opt.textContent = c;
+            categorySelect.appendChild(opt);
+          });
+        }
+      });
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const cartCountEl = document.getElementById("cartCount");
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      let totalItems = 0;
+
+      cart.forEach(item => {
+        totalItems += item.quantity ? item.quantity : 1;
+      });
+
+      cartCountEl.textContent = totalItems;
+    });
+
+
+  </script>
+</body>
+
+</html>

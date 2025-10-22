@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Detalle de Compra</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background-color: #34495e;
+      color: #ecf0f1;
+      font-weight: 500;
+    }
+    tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+    <h1>Detalle de Compra</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Orden de Compra</th>
+          <th>Fecha</th>
+          <th>Nombre Completo</th>
+          <th>ID Usuario</th>
+          <th>Email</th>
+          <th>ID Producto</th>
+          <th>Cantidad</th>
+          <th>Importe</th>
+        </tr>
+      </thead>
+      <tbody id="detalleCompraBody"></tbody>
+      <tfoot id="detalleCompraFoot"></tfoot>
+    </table>
+    <script>
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const token = user ? user.token : null;
+
+    fetch('/api/detalle_compra', {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => { throw new Error(err.error || 'No se pudo cargar la información.'); });
+        }
+        return res.json();
+    })
+    .then(data => {
+        const tbody = document.getElementById("detalleCompraBody");
+        const tfoot = document.getElementById("detalleCompraFoot");
+        tbody.innerHTML = "";
+        tfoot.innerHTML = "";
+        let granTotal = 0;
+
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No hay detalles de compra para mostrar.</td></tr>';
+            return;
+        }
+
+        data.forEach(detalle => {
+        const tr = document.createElement("tr");
+        const importeTotal = detalle.cantidad * detalle.precio_unitario;
+        granTotal += importeTotal;
+        tr.innerHTML = `
+            <td>${detalle.id_orden}</td>
+            <td>${detalle.fecha ? new Date(detalle.fecha).toLocaleDateString('es-ES') : '---'}</td>
+            <td>${(detalle.name && detalle.lastname) ? detalle.name + ' ' + detalle.lastname : '---'}</td>
+            <td>${detalle.usuario_id || '---'}</td>
+            <td>${detalle.email || '---'}</td>
+            <td>${detalle.id_producto}</td>
+            <td>${detalle.cantidad}</td>
+            <td>S/ ${importeTotal.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+        });
+        
+        const totalRow = document.createElement("tr");
+        totalRow.innerHTML = `
+        <td colspan="7" style="text-align: right; font-weight: bold;">Importe Total</td>
+        <td style="font-weight: bold;">S/ ${granTotal.toFixed(2)}</td>
+        `;
+        tfoot.appendChild(totalRow);
+    })
+    .catch(error => {
+        document.getElementById("detalleCompraBody").innerHTML = `<tr><td colspan="8" style="color:red;text-align:center;">${error.message}</td></tr>`;
+    });
+</script>
+</body>
+</html>

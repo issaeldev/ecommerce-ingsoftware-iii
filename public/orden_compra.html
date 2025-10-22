@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Órdenes de Compra</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background-color: #34495e;
+      color: #ecf0f1;
+      font-weight: 500;
+    }
+    tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Órdenes de Compra</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Fecha</th>
+        <th>ID Usuario</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="ordenCompraBody"></tbody>
+  </table>
+  <script>
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const token = user ? user.token : null;
+
+    if (!token) {
+        window.location.href = 'login.html';
+    } else {
+        fetch('/api/orden_compra', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(res => {
+            if (res.status === 403 || res.status === 401) {
+                sessionStorage.removeItem('user');
+                alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+                window.location.href = 'login.html';
+                throw new Error('Sesión expirada'); 
+            }
+            if (!res.ok) {
+                return res.json().then(err => { throw new Error(err.error || 'No se pudo cargar la información.'); });
+            }
+            return res.json();
+        })
+        .then(data => {
+            const tbody = document.getElementById("ordenCompraBody");
+            tbody.innerHTML = "";
+            data.forEach(orden => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${orden.id}</td>
+                    <td>${new Date(orden.fecha).toLocaleString('es-ES')}</td>
+                    <td>${orden.id_usuario || 'N/A'}</td>
+                    <td>S/ ${parseFloat(orden.total).toFixed(2)}</td>`;
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(err => {
+            if (err.message !== 'Sesión expirada') {
+                 document.getElementById("ordenCompraBody").innerHTML = `<tr><td colspan="4" style="color:red;text-align:center;">${err.message}</td></tr>`;
+            }
+        });
+    }
+</script>
+</body>
+</html>

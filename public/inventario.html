@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>
+        Inventario de Prendas
+    </title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background-color: #333;
+            color: #fff;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .edit-btn {
+            padding: 6px 10px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            background-color: #0d47a1;
+        }
+
+        /* Estilo moderno para gestión de inventario */
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #2c3e50;
+        }
+
+        table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: #34495e;
+            color: #ecf0f1;
+            font-weight: 500;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .edit-btn {
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 12px;
+        }
+
+        select[multiple] {
+            padding: 4px;
+            font-size: 11px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #1976d2;
+            outline: none;
+            box-shadow: 0 0 3px rgba(25, 118, 210, 0.3);
+        }
+
+        .delete-btn {
+            padding: 6px 10px;
+            background-color: #c62828;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: #8e0000;
+            transform: scale(1.05);
+        }
+
+        /* Estilos para la paleta de colores */
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin: 2px 0;
+            padding: 6px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            max-width: 180px;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .color-box:hover {
+            outline: 2px solid #666;
+            transform: scale(1.1);
+        }
+
+        .color-box.selected {
+            border-color: #000;
+            outline: 2px solid #000;
+        }
+
+        .color-box.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #000;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .colors-container {
+            position: relative;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>
+        Inventario de Prendas
+    </h1>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    Nombre
+                </th>
+                <th>
+                    Descripción
+                </th>
+                <th>
+                    Categoría
+                </th>
+                <th>
+                    Género
+                </th>
+                <th>
+                    Colores
+                </th>
+                <th>
+                    Tallas
+                </th>
+                <th>
+                    Precio
+                </th>
+                <th>
+                    Stock
+                </th>
+                <th>
+                    SKU
+                </th>
+                <th>
+                    Imagen
+                </th>
+                <th>
+                    Acción
+                </th>
+            </tr>
+        </thead>
+        <tbody id="inventoryBody">
+        </tbody>
+    </table>
+    <script>
+        fetch('/api/products')
+            .then(res => res.json())
+            .then(products => {
+                const tbody = document.getElementById("inventoryBody");
+                tbody.innerHTML = "";
+                products.forEach(product => {
+                    const tr = document.createElement("tr");
+
+                    const fields = ["name", "description", "category", "gender", "colors_json", "sizes", "price_base", "stock"];
+                    fields.forEach((field, i) => {
+                        const td = document.createElement("td");
+
+                        // Manejo especial para colores - mostrar solo los nombres
+                        if (field === "colors_json") {
+                            let colorsDisplay = "—";
+                            try {
+                                const colors = JSON.parse(product[field] || "[]");
+                                colorsDisplay = colors.map(color => color.name).join(", ");
+                            } catch (e) {
+                                colorsDisplay = product[field] || "—";
+                            }
+                            td.textContent = colorsDisplay;
+                            // Guardar el JSON original para edición
+                            td.setAttribute("data-original", product[field]);
+                        } else if (field === "price_base") {
+                            td.textContent = `S/ ${product[field] ?? "0"}`;
+                        } else {
+                            td.textContent = product[field] ?? "—";
+                        }
+
+                        td.setAttribute("contenteditable", "false");
+                        td.setAttribute("data-field", field);
+                        tr.appendChild(td);
+                    });
+
+                    const skuTd = document.createElement("td");
+                    skuTd.textContent = product.sku ?? "—";
+                    tr.appendChild(skuTd);
+
+                    const imgTd = document.createElement("td");
+                    imgTd.innerHTML = product.image ? `<img src="${product.image}" width="50"><br><span style="display:none;">${product.image}</span>` : "Sin imagen";
+                    tr.appendChild(imgTd);
+
+                    const actionTd = document.createElement("td");
+                    const editBtn = document.createElement("button");
+                    editBtn.textContent = "Editar";
+                    editBtn.className = "edit-btn";
+
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.textContent = "Eliminar";
+                    deleteBtn.className = "delete-btn";
+
+                    editBtn.addEventListener("click", () => {
+                        const isEditing = editBtn.textContent === "Guardar";
+                        const tds = tr.querySelectorAll("td");
+
+                        if (!isEditing) {
+                            // Entrar en modo edición
+                            for (let i = 0; i < tds.length; i++) {
+                                if (i === 8) continue; // SKU no editable
+                                if (i === 10) continue; // Acciones no editables
+
+                                const field = tds[i].getAttribute("data-field");
+
+                                if (i === 9) { // Campo imagen
+                                    const currentUrl = tds[i].querySelector("span")?.textContent || "";
+                                    tds[i].innerHTML = `<input type="text" placeholder="URL de imagen" value="${currentUrl}" style="width: 150px;">`;
+                                } else if (field === "colors_json") { // Campo colores
+                                    const originalJson = tds[i].getAttribute("data-original") || "[]";
+                                    let selectedColorNames = [];
+                                    try {
+                                        const colors = JSON.parse(originalJson);
+                                        selectedColorNames = colors.map(c => c.name);
+                                    } catch (e) {
+                                        selectedColorNames = [];
+                                    }
+
+                                    tds[i].innerHTML = `
+                                        <div class="colors-container">
+                                            <div class="color-palette" data-original="${originalJson}"></div>
+                                            <small style="font-size: 10px; color: #666;">Click para seleccionar</small>
+                                        </div>
+                                    `;
+
+                                    const palette = tds[i].querySelector(".color-palette");
+                                    createColorPalette(palette, selectedColorNames);
+                                } else if (field === "price_base") { // Campo precio
+                                    const currentPrice = tds[i].textContent.replace("S/", "").trim();
+                                    tds[i].innerHTML = `<input type="number" step="0.01" min="0" value="${currentPrice}" style="width: 80px;">`;
+                                } else if (field === "stock") { // Campo stock
+                                    tds[i].innerHTML = `<input type="number" min="0" value="${tds[i].textContent}" style="width: 60px;">`;
+                                } else if (field === "gender") { // Campo género
+                                    const currentGender = tds[i].textContent;
+                                    tds[i].innerHTML = `
+                                        <select style="width: 80px;">
+                                            <option value="Hombre" ${currentGender === "Hombre" ? "selected" : ""}>Hombre</option>
+                                            <option value="Mujer" ${currentGender === "Mujer" ? "selected" : ""}>Mujer</option>
+                                        </select>`;
+                                } else if (field === "category") { // Campo categoría
+                                    const currentCategory = tds[i].textContent;
+                                    const currentGender = tds[3].textContent; // Obtener género actual
+                                    tds[i].innerHTML = `<select class="category-select" data-gender="${currentGender}" style="width: 100px;"></select>`;
+                                    updateCategorySelect(tds[i].querySelector('select'), currentGender, currentCategory);
+                                } else if (field === "sizes") { // Campo tallas
+                                    const currentSizes = tds[i].textContent;
+                                    const currentCategory = tds[2].textContent; // Obtener categoría actual
+                                    tds[i].innerHTML = `<select class="size-select" multiple data-category="${currentCategory}" style="width: 80px; height: 60px;"></select>`;
+                                    updateSizeSelect(tds[i].querySelector('select'), currentCategory, currentSizes);
+                                } else { // Campos de texto normales
+                                    const currentText = tds[i].textContent;
+                                    tds[i].innerHTML = `<input type="text" value="${currentText}" style="width: 100px;">`;
+                                }
+                            }
+
+                            // Agregar event listeners para actualización dinámica
+                            const genderSelect = tds[3].querySelector("select");
+                            const categorySelect = tds[2].querySelector("select");
+                            const sizeSelect = tds[5].querySelector("select");
+
+                            if (genderSelect && categorySelect) {
+                                genderSelect.addEventListener("change", () => {
+                                    const newGender = genderSelect.value;
+                                    const currentCategory = categorySelect.value;
+                                    updateCategorySelect(categorySelect, newGender, currentCategory);
+
+                                    // Actualizar tallas también
+                                    if (sizeSelect) {
+                                        const newCategory = categorySelect.value;
+                                        updateSizeSelect(sizeSelect, newCategory, "");
+                                    }
+                                });
+                            }
+
+                            if (categorySelect && sizeSelect) {
+                                categorySelect.addEventListener("change", () => {
+                                    const newCategory = categorySelect.value;
+                                    updateSizeSelect(sizeSelect, newCategory, "");
+                                });
+                            }
+
+                            editBtn.textContent = "Guardar";
+                            editBtn.style.backgroundColor = "#4caf50";
+                        } else {
+                            // Guardar cambios
+                            try {
+                                // Procesar colores: obtener de la paleta
+                                const colorsPalette = tds[4].querySelector(".color-palette");
+                                let colorsJson = "[]";
+                                if (colorsPalette) {
+                                    const selectedColors = getSelectedColors(colorsPalette);
+                                    colorsJson = JSON.stringify(selectedColors);
+                                }
+
+                                // Obtener tallas seleccionadas
+                                const sizeSelect = tds[5].querySelector("select");
+                                const selectedSizes = Array.from(sizeSelect.selectedOptions).map(opt => opt.value);
+
+                                const updatedProduct = {
+                                    name: tds[0].querySelector("input").value.trim(),
+                                    description: tds[1].querySelector("input").value.trim(),
+                                    category: tds[2].querySelector("select").value,
+                                    gender: tds[3].querySelector("select").value,
+                                    colors_json: colorsJson,
+                                    sizes: selectedSizes.join(","),
+                                    price_base: parseFloat(tds[6].querySelector("input").value),
+                                    stock: parseInt(tds[7].querySelector("input").value),
+                                    image: tds[9].querySelector("input").value.trim()
+                                };
+
+                                fetch(`/api/products/${product.id}`, {
+                                    method: "PUT",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(updatedProduct)
+                                })
+                                    .then(res => res.json())
+                                    .then(resp => {
+                                        if (resp.success) {
+                                            // Volver a modo vista
+                                            tds[0].textContent = updatedProduct.name;
+                                            tds[1].textContent = updatedProduct.description;
+                                            tds[2].textContent = updatedProduct.category;
+                                            tds[3].textContent = updatedProduct.gender;
+
+                                            // Mostrar colores como nombres
+                                            try {
+                                                const colors = JSON.parse(updatedProduct.colors_json);
+                                                tds[4].textContent = colors.map(c => c.name).join(", ");
+                                                tds[4].setAttribute("data-original", updatedProduct.colors_json);
+                                            } catch (e) {
+                                                tds[4].textContent = "Sin colores";
+                                                tds[4].setAttribute("data-original", "[]");
+                                            }
+
+                                            tds[5].textContent = updatedProduct.sizes;
+                                            tds[6].textContent = `S/ ${updatedProduct.price_base}`;
+                                            tds[7].textContent = updatedProduct.stock;
+                                            tds[9].innerHTML = updatedProduct.image ?
+                                                `<img src="${updatedProduct.image}" width="50"><br><span style="display:none;">${updatedProduct.image}</span>` :
+                                                "Sin imagen";
+
+                                            editBtn.textContent = "Editar";
+                                            editBtn.style.backgroundColor = "#1976d2";
+                                        } else {
+                                            alert("Error al guardar: " + resp.error);
+                                        }
+                                    })
+                                    .catch(err => {
+                                        alert("Error al guardar: " + err.message);
+                                    });
+                            } catch (error) {
+                                alert("Error en los datos: " + error.message);
+                            }
+                        }
+                    });
+
+                    deleteBtn.addEventListener("click", () => {
+                        if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+                            fetch(`/api/products/${product.id}`, {
+                                method: "DELETE",
+                                headers: {
+                                    'Authorization': 'Bearer ' + (JSON.parse(sessionStorage.getItem("user"))?.token || "")
+                                }
+                            })
+                                .then(res => {
+                                    if (res.ok) {
+                                        tr.remove();
+                                    } else {
+                                        return res.text().then(text => { throw new Error(text); });
+                                    }
+                                })
+                                .catch(err => alert("Error al eliminar: " + err.message));
+                        }
+                    });
+
+                    actionTd.appendChild(editBtn);
+                    actionTd.appendChild(deleteBtn);
+                    tr.appendChild(actionTd);
+
+                    tbody.appendChild(tr);
+                });
+            });
+
+        // Definiciones de categorías y tallas (igual que add-product.html)
+        const categories = {
+            Hombre: {
+                superiores: ["Polo", "Camisa", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"],
+                inferiores: ["Pantalón", "Jeans", "Short"]
+            },
+            Mujer: {
+                superiores: ["Polo", "Blusa", "Top", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"],
+                inferiores: ["Pantalón", "Jeans", "Short", "Falda", "Leggins"]
+            }
+        };
+
+        const tallasSuperiores = ["XS", "S", "M", "L", "XL", "2XL"];
+        const tallasInferiores = ["28", "30", "32", "34", "36", "38", "40", "42", "44"];
+
+        // Función para actualizar opciones de categoría
+        function updateCategorySelect(selectElement, gender, currentCategory) {
+            selectElement.innerHTML = "";
+            if (!gender || !categories[gender]) return;
+
+            const options = [
+                ...categories[gender].superiores.map(cat => ({ cat, tipo: "superior" })),
+                ...categories[gender].inferiores.map(cat => ({ cat, tipo: "inferior" }))
+            ];
+
+            for (const opt of options) {
+                const option = document.createElement("option");
+                option.value = opt.cat;
+                option.dataset.tipo = opt.tipo;
+                option.textContent = opt.cat;
+                if (opt.cat === currentCategory) {
+                    option.selected = true;
+                }
+                selectElement.appendChild(option);
+            }
+        }
+
+        // Función para actualizar opciones de tallas
+        function updateSizeSelect(selectElement, category, currentSizes) {
+            selectElement.innerHTML = "";
+            if (!category) return;
+
+            // Determinar tipo basado en categoría
+            let tipo = "superior"; // por defecto
+            for (const gender in categories) {
+                if (categories[gender].inferiores.includes(category)) {
+                    tipo = "inferior";
+                    break;
+                }
+            }
+
+            const tallas = tipo === "superior" ? tallasSuperiores : tallasInferiores;
+            const selectedSizes = currentSizes.split(",").map(s => s.trim());
+
+            tallas.forEach(talla => {
+                const opt = document.createElement("option");
+                opt.value = talla;
+                opt.textContent = talla;
+                if (selectedSizes.includes(talla)) {
+                    opt.selected = true;
+                }
+                selectElement.appendChild(opt);
+            });
+        }
+
+        // Colores predefinidos (igual que add-product.html)
+        const predefinedColors = [
+            { name: "Negro", code: "#000000" },
+            { name: "Blanco", code: "#FFFFFF" },
+            { name: "Gris claro", code: "#D3D3D3" },
+            { name: "Gris oscuro", code: "#555555" },
+            { name: "Azul marino", code: "#001F3F" },
+            { name: "Beige", code: "#F5F5DC" },
+            { name: "Verde militar", code: "#4B5320" },
+            { name: "Verde oscuro", code: "#006400" },
+            { name: "Rojo", code: "#FF0000" },
+            { name: "Rosado", code: "#FFC0CB" },
+            { name: "Marrón", code: "#8B4513" },
+            { name: "Celeste", code: "#87CEEB" },
+            { name: "Amarillo", code: "#FFFF00" },
+            { name: "Naranja", code: "#FFA500" }
+        ];
+
+        // Función para obtener código de color por nombre
+        function getColorCode(colorName) {
+            const color = predefinedColors.find(c =>
+                c.name.toLowerCase() === colorName.toLowerCase().trim()
+            );
+            return color ? color.code : "#CCCCCC";
+        }
+
+        // Función para crear paleta de colores
+        function createColorPalette(container, selectedColors = []) {
+            container.innerHTML = "";
+
+            predefinedColors.forEach(color => {
+                const div = document.createElement("div");
+                div.className = "color-box";
+                div.style.backgroundColor = color.code;
+                div.title = color.name;
+                div.dataset.name = color.name;
+                div.dataset.code = color.code;
+
+                // Marcar como seleccionado si está en la lista
+                if (selectedColors.includes(color.name)) {
+                    div.classList.add("selected");
+                }
+
+                div.addEventListener("click", () => {
+                    div.classList.toggle("selected");
+                });
+
+                container.appendChild(div);
+            });
+        }
+
+        // Función para obtener colores seleccionados de la paleta
+        function getSelectedColors(paletteContainer) {
+            const selectedBoxes = paletteContainer.querySelectorAll(".color-box.selected");
+            return Array.from(selectedBoxes).map(box => ({
+                name: box.dataset.name,
+                code: box.dataset.code
+            }));
+        }
+    </script>
+</body>
+
+</html>
