@@ -3,52 +3,101 @@
 <head>
   <meta charset="utf-8" />
   <title>Detalle de Compra</title>
+  
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      max-width: 1000px;
-      margin: auto;
-      padding: 20px;
-      background-color: #f5f7fa;
-    }
-    h1 {
-      text-align: center;
-      font-size: 28px;
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
-      text-align: left;
-      font-size: 14px;
-    }
-    th {
-      background-color: #34495e;
-      color: #ecf0f1;
-      font-weight: 500;
-    }
-    tbody tr:hover {
-      background-color: #f1f1f1;
-    }
+    body { font-family: 'Segoe UI', sans-serif; 
+    max-width: 1200px; 
+    margin: auto; 
+    padding: 20px; 
+    background-color: #f5f7fa; }
+    h1 { text-align: center; 
+    color: #2c3e50; }
+    table { width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+    background: white; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    th, td { padding: 12px 15px; 
+    border: 1px solid #ddd; 
+    text-align: left; 
+    font-size: 14px; }
+    th { background-color: #34495e; 
+    color: #ecf0f1; }
+    tbody tr:hover { background-color: #f1f1f1; }
+    .controles-container { display: flex; 
+    justify-content: space-between; 
+    align-items: flex-end; 
+    padding: 15px; 
+    background-color: white; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+    margin-bottom: 20px; 
+    flex-wrap: wrap; gap: 20px; }
+    .filtros { display: flex; 
+    gap: 15px; 
+    align-items: center; 
+    flex-wrap: wrap; }
+    .filtro-item { display: flex; 
+    flex-direction: column; }
+    .filtro-item label { font-size: 12px; 
+    color: #555; 
+    margin-bottom: 4px; }
+    .acciones { display: flex; 
+    gap: 10px; 
+    align-items: center; }
+    button, input { padding: 8px 12px; 
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+    font-size: 14px; }
+    button { cursor: pointer; 
+    background-color: #3498db; 
+    color: white; 
+    border-color: #3498db; }
+    button:hover { background-color: #2980b9; }
+    #btn-regresar button { background-color: #95a5a6; 
+    border-color: #95a5a6; }
+    #btn-regresar button:hover { background-color: #7f8c8d; }
+    a { text-decoration: none; }
   </style>
 </head>
 <body>
-    <h1>Detalle de Compra</h1>
-    <table>
+    <h1>Reporte de Ventas</h1>
+
+    <div class="controles-container">
+        <div class="filtros">
+            <div class="filtro-item">
+                <label for="filtro-orden"><b>Filtrar por ID Orden:</b></label>
+                <input type="text" id="filtro-orden" placeholder="Ej: 22">
+            </div>
+            <div class="filtro-item">
+                <label for="filtro-usuario"><b>Filtrar por ID Usuario:</b></label>
+                <input type="text" id="filtro-usuario" placeholder="Ej: 37">
+            </div>
+            <div class="filtro-item">
+                <label for="filtro-producto"><b>Filtrar por ID Producto:</b></label>
+                <input type="text" id="filtro-producto" placeholder="Ej: 41">
+            </div>
+            <div class="filtro-item">
+                <label for="filtro-fecha"><b>Filtrar por Fecha:</b></label>
+                <input type="date" id="filtro-fecha">
+            </div>
+            <button id="btn-filtrar" style="align-self: flex-end;"><b>Filtrar</b></button>
+            <button id="btn-mostrar-todos" style="align-self: flex-end;"><b>Mostrar Todos</b></button>
+        </div>
+        <div class="acciones">
+            <a href="index.html" id="btn-regresar">
+                <button><b>Regresar al Inicio</b></button>
+            </a>
+        </div>
+    </div>
+
+    <table id="tabla-detalles">
       <thead>
         <tr>
           <th>ID Orden de Compra</th>
-          <th>Fecha</th>
+          <th>Fecha y Hora</th>
           <th>Nombre Completo</th>
           <th>ID Usuario</th>
           <th>Email</th>
@@ -60,60 +109,122 @@
       <tbody id="detalleCompraBody"></tbody>
       <tfoot id="detalleCompraFoot"></tfoot>
     </table>
+
     <script>
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const token = user ? user.token : null;
-
-    fetch('/api/detalle_compra', {
-      headers: {
-        'Authorization': 'Bearer ' + token
-      }
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(err => { throw new Error(err.error || 'No se pudo cargar la información.'); });
-        }
-        return res.json();
-    })
-    .then(data => {
-        const tbody = document.getElementById("detalleCompraBody");
-        const tfoot = document.getElementById("detalleCompraFoot");
-        tbody.innerHTML = "";
-        tfoot.innerHTML = "";
-        let granTotal = 0;
-
-        if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No hay detalles de compra para mostrar.</td></tr>';
-            return;
-        }
-
-        data.forEach(detalle => {
-        const tr = document.createElement("tr");
-        const importeTotal = detalle.cantidad * detalle.precio_unitario;
-        granTotal += importeTotal;
-        tr.innerHTML = `
-            <td>${detalle.id_orden}</td>
-            <td>${detalle.fecha ? new Date(detalle.fecha).toLocaleDateString('es-ES') : '---'}</td>
-            <td>${(detalle.name && detalle.lastname) ? detalle.name + ' ' + detalle.lastname : '---'}</td>
-            <td>${detalle.usuario_id || '---'}</td>
-            <td>${detalle.email || '---'}</td>
-            <td>${detalle.id_producto}</td>
-            <td>${detalle.cantidad}</td>
-            <td>S/ ${importeTotal.toFixed(2)}</td>
-        `;
-        tbody.appendChild(tr);
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        const token = user ? user.token : null;
         
-        const totalRow = document.createElement("tr");
-        totalRow.innerHTML = `
-        <td colspan="7" style="text-align: right; font-weight: bold;">Importe Total</td>
-        <td style="font-weight: bold;">S/ ${granTotal.toFixed(2)}</td>
-        `;
-        tfoot.appendChild(totalRow);
-    })
-    .catch(error => {
-        document.getElementById("detalleCompraBody").innerHTML = `<tr><td colspan="8" style="color:red;text-align:center;">${error.message}</td></tr>`;
-    });
+        fetch('/api/detalle_compra', { headers: { 'Authorization': 'Bearer ' + token } })
+        .then(res => res.ok ? res.json() : res.json().then(err => Promise.reject(err)))
+        .then(data => {
+            const tbody = document.getElementById("detalleCompraBody");
+            tbody.innerHTML = "";
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No hay detalles de compra.</td></tr>';
+                return;
+            }
+
+            data.forEach(detalle => {
+                const tr = document.createElement("tr");
+                const importeTotal = detalle.cantidad * detalle.precio_unitario;
+                
+                const fechaObj = new Date(detalle.fecha);
+                const fechaFormateada = fechaObj.toLocaleDateString('es-ES') + ' ' + fechaObj.toLocaleTimeString('es-ES');
+
+                tr.innerHTML = `
+                    <td>${detalle.id_orden}</td>
+                    <td>${fechaFormateada}</td>
+                    <td>${detalle.name || ''} ${detalle.lastname || ''}</td>
+                    <td>${detalle.usuario_id}</td>
+                    <td>${detalle.email}</td>
+                    <td>${detalle.id_producto}</td>
+                    <td>${detalle.cantidad}</td>
+                    <td>S/ ${importeTotal.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            actualizarTotal();
+        })
+        .catch(error => {
+            document.getElementById("detalleCompraBody").innerHTML = `<tr><td colspan="8" style="color:red;text-align:center;">Error: ${error.message || 'No se pudo cargar'}</td></tr>`;
+        });
+
+        function actualizarTotal() {
+            const tablaBody = document.getElementById("detalleCompraBody");
+            const tfoot = document.getElementById("detalleCompraFoot");
+            const filas = tablaBody.getElementsByTagName('tr');
+            let totalVisible = 0;
+
+            for (const fila of filas) {
+                if (fila.style.display !== 'none') {
+                    const celdaImporte = fila.getElementsByTagName('td')[7]; 
+                    if (celdaImporte) {
+                        const valorTexto = celdaImporte.textContent.replace('S/ ', '').trim();
+                        const valorNumerico = parseFloat(valorTexto);
+                        if (!isNaN(valorNumerico)) {
+                            totalVisible += valorNumerico;
+                        }
+                    }
+                }
+            }
+            tfoot.innerHTML = `<tr><td colspan="7" style="text-align: right; font-weight: bold;">Importe Total</td><td style="font-weight: bold;">S/ ${totalVisible.toFixed(2)}</td></tr>`;
+        }
+
+        const filtroOrden = document.getElementById('filtro-orden');
+        const filtroUsuario = document.getElementById('filtro-usuario');
+        const filtroProducto = document.getElementById('filtro-producto');
+        const filtroFecha = document.getElementById('filtro-fecha');
+        const btnFiltrar = document.getElementById('btn-filtrar');
+        const btnMostrarTodos = document.getElementById('btn-mostrar-todos');
+
+        btnFiltrar.addEventListener('click', () => {
+            const textoFiltroOrden = filtroOrden.value.trim();
+            const textoFiltroUsuario = filtroUsuario.value.trim();
+            const textoFiltroProducto = filtroProducto.value.trim();
+            const textoFiltroFecha = filtroFecha.value;
+            const tablaBody = document.getElementById("detalleCompraBody");
+            const filas = tablaBody.getElementsByTagName('tr');
+            
+            for (const fila of filas) {
+                const celdas = fila.getElementsByTagName('td');
+                const idOrden = celdas[0].textContent;
+                const fechaTexto = celdas[1].textContent.split(' ')[0];
+                const idUsuario = celdas[3].textContent;
+                const idProducto = celdas[5].textContent;
+
+                const partesFecha = fechaTexto.split('/');
+                const fechaFormateadaTabla = `${partesFecha[2]}-${partesFecha[1]}-${partesFecha[0]}`;
+
+                const coincideOrden = idOrden.includes(textoFiltroOrden);
+                const coincideUsuario = idUsuario.includes(textoFiltroUsuario);
+                const coincideProducto = idProducto.includes(textoFiltroProducto);
+                const coincideFecha = !textoFiltroFecha || fechaFormateadaTabla === textoFiltroFecha;
+
+                if (coincideOrden && coincideUsuario && coincideProducto && coincideFecha) {
+                    fila.style.display = "";
+                } else {
+                    fila.style.display = "none";
+                }
+            }
+            actualizarTotal();
+        });
+
+        btnMostrarTodos.addEventListener('click', () => {
+            const tablaBody = document.getElementById("detalleCompraBody");
+            const filas = tablaBody.getElementsByTagName('tr');
+            for (const fila of filas) {
+                fila.style.display = "";
+            }
+            filtroOrden.value = '';
+            filtroUsuario.value = '';
+            filtroProducto.value = '';
+            filtroFecha.value = '';
+            actualizarTotal();
+        });
+      });
 </script>
 </body>
 </html>
