@@ -2,261 +2,115 @@
 <html lang="es">
 
 <head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>
-    UrbanStyle
-  </title>
-  <link href="styles.css" rel="stylesheet" />
-  <style>
-    .catalog-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      padding: 20px;
-      gap: 20px;
-    }
-
-    .product {
-      flex: 0 1 calc(30% - 20px);
-      box-sizing: border-box;
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 360px;
-    }
-
-    .product img {
-      width: 100%;
-      max-height: 300px;
-      border-radius: 10px;
-    }
-
-    .product h3 {
-      font-size: 1.1em;
-      margin: 10px 0 5px 0;
-      text-align: center;
-    }
-
-    .product p {
-      margin: 4px 0;
-    }
-
-    .price {
-      color: #d00;
-      font-weight: bold;
-      margin-top: auto;
-    }
-
-    .color-box {
-      width: 4px;
-      height: 10px;
-      display: inline-block;
-      border: 1px solid #999;
-      margin-right: 5px;
-      border-radius: 4px;
-    }
-
-
-    .selectable-color,
-    .selectable-size {
-      display: inline-block;
-      padding: 5px 10px;
-      margin: 4px;
-      border: 1px solid #999;
-      cursor: pointer;
-      border-radius: 4px;
-      user-select: none;
-    }
-
-    .selectable-color.selected,
-    .selectable-size.selected {
-      outline: 3px solid #007BFF;
-    }
-  </style>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>UrbanStyle</title>
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
-  <header>
-    <h1>
-      UrbanStyle
-    </h1>
-    <nav>
-      <ul>
-        <li class="dropdown" id="adminLink" style="display: none;">
-          <a href="#">
-            Gestionar
-          </a>
-          <div class="dropdown-content">
-            <a href="add-product.html">
-              Añadir producto
-            </a>
-            <a href="inventario.html">
-              Ver inventario
-            </a>
-          </div>
-        </li>
-        <li id="ordenCompraLink" style="display: none;">
-          <a href="orden_compra.html">Orden de Compra</a>
-        </li>
-        <li id="detalleCompraLink" style="display: none;">
-          <a href="detalle_compra.html">Detalle de Compra</a>
-        </li>
-        <li id="logoutLink" style="display: none;">
-          <a href="#">
-            Cerrar sesión
-          </a>
-        </li>
-        <li>
-          <a href="login.html">
-            Iniciar Sesión
-          </a>
-        </li>
-        <li>
-          <a href="register.html">
-            Registrarse
-          </a>
-        </li>
-        <li style="position: relative;">
-          <a href="cart.html" style="display: flex; align-items: center;">
-            🛒
-            <span id="cartCount" style="
-      background-color: red;
-      color: white;
-      border-radius: 50%;
-      padding: 2px 6px;
-      font-size: 12px;
-      margin-left: 5px;
-      position: absolute;
-      top: -8px;
-      right: -10px;
-    ">0</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </header>
-  <main>
-    <section class="filters" style="margin: 20px; display: flex; gap: 15px; align-items: center;">
-      <label for="filterGender">
-        Género:
-      </label>
-      <select id="filterGender">
-        <option value="all">
-          Todos
-        </option>
-        <option value="Hombre">
-          Hombre
-        </option>
-        <option value="Mujer">
-          Mujer
-        </option>
-      </select>
-      <label for="filterCategory">
-        Categoría:
-      </label>
-      <select id="filterCategory">
-        <option value="all">
-          Todas
-        </option>
-        <option value="Polo">
-          Polo
-        </option>
-        <option value="Camiseta">
-          Camiseta
-        </option>
-        <option value="Blusa">
-          Blusa
-        </option>
-        <option value="Jeans">
-          Jeans
-        </option>
-        <option value="Falda">
-          Falda
-        </option>
-        <option value="Short">
-          Short
-        </option>
-        <option value="Casaca">
-          Casaca
-        </option>
-        <option value="Top">
-          Top
-        </option>
-        <option value="Blazer">
-          Blazer
-        </option>
-        <option value="Saco">
-          Saco
-        </option>
-        <option value="Chaleco">
-          Chaleco
-        </option>
-      </select>
-      <button onclick="applyFilters()">
-        Filtrar
-      </button>
-    </section>
-    <section class="catalog-container" id="products">
-      <!-- Productos serán generados dinámicamente -->
-    </section>
-  </main>
-  <footer>
-    © 2025 UrbanStyle
-  </footer>
-  <script src="script.js">
-  </script>
-  <script>
-    const categorias = {
-      Hombre: {
-        superiores: ["Polo", "Camisa", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"],
-        inferiores: ["Pantalón", "Jeans", "Short"]
-      },
-      Mujer: {
-        superiores: ["Polo", "Blusa", "Top", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"],
-        inferiores: ["Pantalón", "Jeans", "Short", "Falda", "Leggins"]
-      }
-    };
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="index.html" class="brand">UrbanStyle</a>
+            </div>
+            <div class="nav-center">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li id="misComprasLink" style="display: none;"><a href="mis-compras.html">Mis Compras</a></li>
+                    
+                    <li class="dropdown" id="adminLink" style="display: none;">
+                        <a href="#">Gestionar</a>
+                        <div class="dropdown-content">
+                            <a href="add-product.html">Añadir Producto</a>
+                            <a href="inventario.html">Ver Inventario</a>
+                        </div>
+                    </li>
+                    <li id="ordenesLink" style="display: none;"><a href="orden_compra.html">Órdenes</a></li>
+                    <li id="reportesLink" style="display: none;"><a href="detalle_compra.html">Reportes</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <ul>
+                    <li id="loginLink"><a href="login.html">Iniciar Sesión</a></li>
+                    <li id="registerLink"><a href="register.html">Registrarse</a></li>
+                    <li id="logoutLink" style="display: none;"><a href="#">Cerrar sesión</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-link" data-testid="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cartCount" data-testid="cart-count">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        <div class="mobile-nav" id="mobile-nav"></div>
+    </header>
+    <main>
+        <section class="filter-controls" data-testid="filter-controls">
+            <div class="filter-group">
+                <h4>Género:</h4>
+                <div class="filter-options">
+                    <button class="filter-option selected" data-filter-type="gender" data-filter-value="all" data-testid="filter-gender-all">Todos</button>
+                    <button class="filter-option" data-filter-type="gender" data-filter-value="Hombre" data-testid="filter-gender-hombre">Hombre</button>
+                    <button class="filter-option" data-filter-type="gender" data-filter-value="Mujer" data-testid="filter-gender-mujer">Mujer</button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <h4>Categoría:</h4>
+                <div class="filter-options" id="category-filter-options">
+                    <button class="filter-option selected" data-filter-type="category" data-filter-value="all" data-testid="filter-category-all">Todas</button>
+                </div>
+            </div>
+        </section>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const genderSelect = document.getElementById("filterGender");
-      const categorySelect = document.getElementById("filterCategory");
+        <section class="catalog-container" id="products-container" data-testid="products-container"></section>
+        
+        <div id="no-results-message" data-testid="no-results-message" style="display: none; text-align: center; padding: 40px;">
+            <h3>No se encontraron productos que coincidan con tu búsqueda.</h3>
+        </div>
+    </main>
 
-      genderSelect.addEventListener("change", () => {
-        const selectedGender = genderSelect.value;
-        categorySelect.innerHTML = '<option value="all">Todas</option>';
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h4>Sobre nosotros</h4>
+                <p>Tu tienda de confianza para la moda urbana. Ofrecemos las últimas tendencias con la mejor calidad y estilo.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#">Catálogo</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Soporte</h4>
+                <ul>
+                    <li><a href="#">Preguntas Frecuentes</a></li>
+                    <li><a href="#">Envíos y Devoluciones</a></li>
+                    <li><a href="#">Política de Privacidad</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 UrbanStyle. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
-        if (categorias[selectedGender]) {
-          const opciones = [...categorias[selectedGender].superiores, ...categorias[selectedGender].inferiores];
-          opciones.forEach(c => {
-            const opt = document.createElement("option");
-            opt.value = c;
-            opt.textContent = c;
-            categorySelect.appendChild(opt);
-          });
-        }
-      });
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const cartCountEl = document.getElementById("cartCount");
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      let totalItems = 0;
-
-      cart.forEach(item => {
-        totalItems += item.quantity ? item.quantity : 1;
-      });
-
-      cartCountEl.textContent = totalItems;
-    });
-
-
-  </script>
+    <script src="script.js"></script>
 </body>
-
 </html>

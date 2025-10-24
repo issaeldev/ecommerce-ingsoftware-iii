@@ -106,36 +106,43 @@ app.get('/api/orden_compra', authenticateToken, (req, res) => {
     }
 });
 
-//Detalle de compra
+//Detalle de compra y Mis Compras
 app.get('/api/detalle_compra', authenticateToken, (req, res) => {
   let sql = `
     SELECT
         dc.id_orden, 
+        oc.fecha,
         dc.id_producto, 
+        p.name AS nombre_producto,
+        p.gender AS genero,
+        p.sizes AS talla,
         dc.cantidad, 
         dc.precio_unitario,
-        oc.fecha, 
         u.id AS usuario_id, 
-        u.name, u.lastname, 
+        u.name, 
+        u.lastname, 
         u.email
     FROM detalle_compra dc
-    LEFT JOIN orden_compra oc ON dc.id_orden = oc.id
-    LEFT JOIN users u ON oc.id_usuario = u.id
+    JOIN orden_compra oc ON dc.id_orden = oc.id
+    JOIN products p ON dc.id_producto = p.id
+    JOIN users u ON oc.id_usuario = u.id
     `;
   const params = [];
 
+  //Si no es admin, filtra por el ID del usuario que hizo la petición
   if (!req.user.isAdmin) {
     sql += ' WHERE oc.id_usuario = ?';
     params.push(req.user.id);
   }
 
-  sql += ' ORDER BY dc.id_orden DESC';
+  sql += ' ORDER BY dc.id_orden DESC, p.name ASC';
 
   db.all(sql, params, (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
 });
+
 
 //Registrar nueva orden de compra
 app.post('/api/orden_compra', authenticateToken, (req, res) => {
