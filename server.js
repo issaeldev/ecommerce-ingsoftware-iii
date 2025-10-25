@@ -172,7 +172,7 @@ app.post('/api/orden_compra', authenticateToken, (req, res) => {
 
 //Servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -184,4 +184,4 @@ function authenticateToken(req, res, next) {
         next();
     });
 }
-module.exports = app;
+module.exports = { app, db, server };
