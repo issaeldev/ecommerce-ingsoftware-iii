@@ -14,13 +14,15 @@ node server.js
 
 Pruebas:
 login
-    npm run test:login-credentials
-    npm run test:login-validation
-    npm run test:login-toggle
+    npm run test:login
 crud
-    npm run test:crud-add
-    npm run test:crud-edit
-    npm run test:crud-add
+    npm run test:crud
+
+Pruebas de integración:
+    npm run test:integration
+
+Pruebas de rendimiento:
+    k6 run performance.test.js
 
 Luego abrir "http://localhost:3000" en el navegador
 
