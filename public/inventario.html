@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Inventario de Prendas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+    <style>
+        main {
+            margin-top: 0;
+            padding-top: 0;
+        }
+        .inventory-container {
+            max-width: 1200px;
+            margin: 0 auto; 
+            padding: 20px;
+        }
+        .inventory-header {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+        .controles-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .filtros {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filtro-item label {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .acciones {
+            display: flex;
+            gap: 10px;
+        }
+        select, input, .controles-container button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        .controles-container button {
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+        .controles-container button:hover {
+            background-color: var(--secondary-color);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: left;
+            font-size: 14px;
+            vertical-align: middle; 
+        }
+        th {
+            background-color: var(--secondary-color);
+            color: #ecf0f1;
+        }
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        td.action-cell {
+            text-align: center;
+        }
+        .action-buttons {
+            display: inline-flex;
+        }
+        
+        .edit-btn, .delete-btn, .save-btn {
+            padding: 6px 10px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 80px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+        .edit-btn { background-color: #1976d2; }
+        .save-btn { background-color: #4caf50; }
+        .delete-btn { background-color: #c62828; }
+        td img { max-width: 50px; height: auto; border-radius: 4px; }
+        
+        .edit-container {
+            max-height: 90px; 
+            overflow-y: auto; 
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fdfdfd;
+        }
+
+        td .color-palette { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 4px; 
+            max-width: 90px; 
+        }
+        td .color-box { 
+            width: 15px; 
+            height: 15px; 
+            border-radius: 50%; 
+            border: 1px solid #ccc; 
+            cursor: pointer; 
+        }
+        td .color-box.selected { 
+            border-color: #000; 
+            outline: 1px solid #000; 
+        }
+        
+        td input[type="text"] {
+            width: 100px; 
+            box-sizing: border-box;
+        }
+        td[data-field="description"] input {
+            width: 100%;
+        }
+        td input[type="number"] {
+            width: 60px; 
+            box-sizing: border-box;
+        }
+        td .edit-container select[multiple] {
+            height: 100%;
+            width: 100%;
+            border: none;
+        }
+
+        .col-description {
+            max-width: 200px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .col-colores {
+            max-width: 100px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="index.html" class="brand">UrbanStyle</a>
+            </div>
+            <div class="nav-center">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li class="dropdown" id="adminLink" style="display: none;">
+                        <a href="#">Gestionar</a>
+                        <div class="dropdown-content">
+                            <a href="add-product.html">Añadir producto</a>
+                            <a href="inventario.html">Ver inventario</a>
+                        </div>
+                    </li>
+                    <li id="ordenesLink" style="display: none;"><a href="orden_compra.html">Órdenes</a></li>
+                    <li id="reportesLink" style="display: none;"><a href="detalle_compra.html">Reportes</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <ul>
+                    <li id="loginLink"><a href="login.html">Iniciar Sesión</a></li>
+                    <li id="registerLink"><a href="register.html">Registrarse</a></li>
+                    <li id="logoutLink" style="display: none;"><a href="#">Cerrar sesión</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-link" data-testid="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cartCount" data-testid="cart-count">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        <div class="mobile-nav" id="mobile-nav"></div>
+    </header>
+
+    <main>
+        <div class="inventory-container">
+            <h1 class="inventory-header">Inventario de Prendas</h1>
+
+            <div class="controles-container">
+                <div class="filtros">
+                    <div class="filtro-item">
+                        <label for="filtro-genero">Filtrar por Género:</label>
+                        <select id="filtro-genero">
+                            <option value="">Todos</option>
+                            <option value="Hombre">Hombre</option>
+                            <option value="Mujer">Mujer</option>
+                        </select>
+                    </div>
+                    <div class="filtro-item">
+                        <label for="filtro-categoria">Filtrar por Categoría:</label>
+                        <select id="filtro-categoria">
+                             <option value="">Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="acciones">
+                    <button id="btn-filtrar">Filtrar</button>
+                    <button id="btn-mostrar-todos">Mostrar Todos</button>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th class="col-description">Descripción</th>
+                        <th>Categoría</th>
+                        <th>Género</th>
+                        <th class="col-colores">Colores</th>
+                        <th>Tallas</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Imagen</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryBody"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h4>Sobre nosotros</h4>
+                <p>Tu tienda de confianza para la moda urbana. Ofrecemos las últimas tendencias con la mejor calidad y estilo.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#">Catálogo</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Soporte</h4>
+                <ul>
+                    <li><a href="#">Preguntas Frecuentes</a></li>
+                    <li><a href="#">Envíos y Devoluciones</a></li>
+                    <li><a href="#">Política de Privacidad</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 UrbanStyle. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            if (!user || !user.isAdmin) {
+                alert("Acceso no autorizado.");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            let allProducts = [];
+            const tbody = document.getElementById("inventoryBody");
+
+            const categories = { Hombre: { superiores: ["Polo", "Camisa", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"], inferiores: ["Pantalón", "Jeans", "Short"] }, Mujer: { superiores: ["Polo", "Blusa", "Top", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"], inferiores: ["Pantalón", "Jeans", "Short", "Falda", "Leggins"] } };
+            const tallasSuperiores = ["XS", "S", "M", "L", "XL", "2XL"];
+            const tallasInferiores = ["28", "30", "32", "34", "36", "38", "40", "42", "44"];
+            const predefinedColors = [ { name: "Negro", code: "#000000" }, { name: "Blanco", code: "#FFFFFF" }, { name: "Gris claro", code: "#D3D3D3" }, { name: "Gris oscuro", code: "#555555" }, { name: "Azul marino", code: "#001F3F" }, { name: "Beige", code: "#F5F5DC" }, { name: "Verde militar", code: "#4B5320" }, { name: "Verde oscuro", code: "#006400" }, { name: "Rojo", code: "#FF0000" }, { name: "Rosado", code: "#FFC0CB" }, { name: "Marrón", code: "#8B4513" }, { name: "Celeste", code: "#87CEEB" }, { name: "Amarillo", code: "#FFFF00" }, { name: "Naranja", code: "#FFA500" } ];
+
+            fetch('/api/products')
+                .then(res => res.json())
+                .then(products => {
+                    allProducts = products;
+                    renderTable(allProducts);
+                });
+
+            function renderTable(products) {
+                tbody.innerHTML = "";
+                products.forEach(product => {
+                    const tr = document.createElement("tr");
+                    tr.setAttribute('data-product-id', product.id);
+                    const colors = JSON.parse(product.colors_json || "[]");
+                    const colorNames = colors.map(c => c.name).join(', ');
+                    tr.innerHTML = `
+                        <td data-field="name">${product.name || ''}</td>
+                        <td data-field="description" class="col-description">${product.description || ''}</td>
+                        <td data-field="category">${product.category || ''}</td>
+                        <td data-field="gender">${product.gender || ''}</td>
+                        <td data-field="colors_json" data-original='${JSON.stringify(colors)}' class="col-colores">${colorNames}</td>
+                        <td data-field="sizes">${product.sizes || ''}</td>
+                        <td data-field="price_base">S/ ${parseFloat(product.price_base || 0).toFixed(2)}</td>
+                        <td data-field="stock">${product.stock || 0}</td>
+                        <td><img src="${product.image}" alt="${product.name}" style="width:50px; border-radius:4px;"></td>
+                        <td class="action-cell">
+                            <div class="action-buttons">
+                                <button class="edit-btn">Editar</button>
+                                <button class="delete-btn">Eliminar</button>
+                            </div>
+                        </td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            const filtroGenero = document.getElementById('filtro-genero');
+            const filtroCategoria = document.getElementById('filtro-categoria');
+            filtroGenero.addEventListener('change', () => {
+                filtroCategoria.innerHTML = '<option value="">Todas</option>';
+                if (filtroGenero.value && categories[filtroGenero.value]) {
+                    [...categories[filtroGenero.value].superiores, ...categories[filtroGenero.value].inferiores].forEach(cat => filtroCategoria.add(new Option(cat, cat)));
+                }
+            });
+            document.getElementById('btn-filtrar').addEventListener('click', () => {
+                const genero = filtroGenero.value;
+                const categoria = filtroCategoria.value;
+                const filteredProducts = allProducts.filter(p => (!genero || p.gender === genero) && (!categoria || p.category === categoria));
+                renderTable(filteredProducts);
+            });
+            document.getElementById('btn-mostrar-todos').addEventListener('click', () => {
+                filtroGenero.value = '';
+                filtroCategoria.innerHTML = '<option value="">Todas</option>';
+                renderTable(allProducts);
+            });
+
+            tbody.addEventListener('click', function(event) {
+                const target = event.target;
+                const tr = target.closest('tr');
+                if (!tr) return;
+                const productId = tr.dataset.productId;
+
+                if (target.classList.contains('delete-btn')) {
+                    if (confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+                        fetch(`/api/products/${productId}`, {
+                            method: "DELETE",
+                            headers: { 'Authorization': `Bearer ${user.token}` }
+                        }).then(res => {
+                            if (res.ok) {
+                                tr.remove();
+                                allProducts = allProducts.filter(p => p.id != productId);
+                            } else { alert("Error al eliminar."); }
+                        });
+                    }
+                }
+
+                if (target.classList.contains('edit-btn')) {
+                    target.textContent = "Guardar";
+                    target.classList.replace('edit-btn', 'save-btn');
+                    tr.querySelectorAll("td[data-field]").forEach(td => {
+                        const field = td.dataset.field;
+                        const currentValue = td.textContent;
+                        
+                        td.classList.remove('col-description');
+                        td.classList.remove('col-colores');
+
+                        if (field === 'colors_json' || field === 'sizes') {
+                            td.innerHTML = `<div class="edit-container"></div>`;
+                            const container = td.querySelector('.edit-container');
+                            if (field === 'colors_json') {
+                                const originalJson = td.dataset.original || "[]";
+                                let selected = JSON.parse(originalJson).map(c => c.name);
+                                container.innerHTML = '<div class="color-palette"></div>';
+                                createColorPalette(container.querySelector('.color-palette'), selected);
+                            } else if (field === 'sizes') {
+                                const currentSizes = currentValue.split(',').map(s => s.trim());
+                                container.innerHTML = `<select multiple>${tallasSuperiores.concat(tallasInferiores).map(t => `<option value="${t}" ${currentSizes.includes(t) ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+                            }
+                        } else if (field === 'gender') {
+                            td.innerHTML = `<select><option value="Hombre" ${currentValue === 'Hombre' ? 'selected' : ''}>Hombre</option><option value="Mujer" ${currentValue === 'Mujer' ? 'selected' : ''}>Mujer</option></select>`;
+                        } else if (field === 'price_base') {
+                            td.innerHTML = `<input type="number" step="0.01" value="${currentValue.replace('S/ ', '')}">`;
+                        } else if (field === 'stock') {
+                            td.innerHTML = `<input type="number" value="${currentValue}">`;
+                        } else {
+                             td.innerHTML = `<input type="text" value="${currentValue}">`;
+                        }
+                    });
+                } else if (target.classList.contains('save-btn')) {
+                    const updatedProduct = {
+                        name: tr.querySelector('[data-field="name"] input').value,
+                        description: tr.querySelector('[data-field="description"] input').value,
+                        category: tr.querySelector('[data-field="category"] input').value,
+                        gender: tr.querySelector('[data-field="gender"] select').value,
+                        colors_json: JSON.stringify(getSelectedColors(tr.querySelector('[data-field="colors_json"] .color-palette'))),
+                        sizes: Array.from(tr.querySelector('[data-field="sizes"] select').selectedOptions).map(o => o.value).join(','),
+                        price_base: parseFloat(tr.querySelector('[data-field="price_base"] input').value),
+                        stock: parseInt(tr.querySelector('[data-field="stock"] input').value),
+                        image: allProducts.find(p => p.id == productId).image
+                    };
+
+                    fetch(`/api/products/${productId}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json", 'Authorization': `Bearer ${user.token}` },
+                        body: JSON.stringify(updatedProduct)
+                    }).then(res => res.json()).then(data => {
+                        if(data.success) {
+                            const updatedIndex = allProducts.findIndex(p => p.id == productId);
+                            allProducts[updatedIndex] = { ...allProducts[updatedIndex], ...updatedProduct };
+                            renderTable(allProducts);
+                        } else { alert('Error al guardar'); }
+                    });
+                }
+            });
+
+            function createColorPalette(container, selectedColors = []) {
+                predefinedColors.forEach(color => {
+                    const div = document.createElement("div");
+                    div.className = "color-box";
+                    div.style.backgroundColor = color.code;
+                    div.dataset.name = color.name;
+                    div.dataset.code = color.code;
+                    if (selectedColors.includes(color.name)) div.classList.add("selected");
+                    div.addEventListener("click", () => div.classList.toggle("selected"));
+                    container.appendChild(div);
+                });
+            }
+            function getSelectedColors(paletteContainer) {
+                return Array.from(paletteContainer.querySelectorAll(".color-box.selected")).map(box => ({ name: box.dataset.name, code: box.dataset.code }));
+            }
+        });
+    </script>
+</body>
+</html>

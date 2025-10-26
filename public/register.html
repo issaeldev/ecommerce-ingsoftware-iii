@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registrarse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .register-container {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 85%;
+            padding: 10px 35px 10px 35px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .input-group i {
+            position: absolute;
+            top: 35px;
+            left: 10px;
+            color: #888;
+        }
+
+        .eye-icon {
+            position: absolute;
+            right: 15px;
+            top: 35px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+
+        .guidelines {
+            font-size: 0.8em;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .login-text {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .login-text a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .login-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="register-container">
+        <h2>Crea tu cuenta</h2>
+        <form id="registerForm">
+            <div class="input-group">
+                <label for="regName">Nombre</label>
+                <i class="fa fa-user"></i>
+                <input type="text" id="regName" name="name" minlength="2" maxlength="30" placeholder="Ingresa tu nombre"
+                    required>
+            </div>
+            <div class="input-group">
+                <label for="regLastname">Apellidos</label>
+                <i class="fa fa-user"></i>
+                <input type="text" id="regLastname" name="lastname" minlength="2" maxlength="40"
+                    placeholder="Ingresa tu apellido" required>
+            </div>
+            <div class="input-group">
+                <label for="regEmail">Correo electrónico</label>
+                <i class="fa fa-envelope"></i>
+                <input type="email" id="regEmail" name="email" required
+                    pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$" placeholder="ejemplo@dominio.com">
+            </div>
+            <div class="input-group">
+                <label for="regDocumentType">Tipo de Documento</label>
+                <select id="regDocumentType" required>
+                    <option value="">Seleccione</option>
+                    <option value="DNI">DNI</option>
+                    <option value="Carnet de Extranjería">Carnet de Extranjería</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="regDocumentNumber">Número de Documento</label>
+                <i class="fa fa-id-card"></i>
+                <input type="text" id="regDocumentNumber" pattern="\d{8,12}" required>
+            </div>
+            <div class="input-group">
+                <label for="regPhone">Celular</label>
+                <i class="fa fa-phone"></i>
+                <div style="display:flex;align-items:center;gap:5px;">
+                    <input type="tel" id="regPhone" name="phone" pattern="\d{9}" title="Debe tener 9 dígitos" required
+                        placeholder="987654321" style="width:100%;"
+                        oninput="this.value=this.value.replace(/\D/g, '').slice(0,9);">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="regPassword">Contraseña</label>
+                <i class="fa fa-lock"></i>
+                <input type="password" id="regPassword" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=\S+$).{8,}"
+                    placeholder="Ingresa tu contraseña">
+                <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" alt="Ver" class="eye-icon"
+                    id="togglePassword">
+                <div class="guidelines">Mín. 8 caracteres • 1 mayúscula • 1 minúscula • 1 número • Sin espacios</div>
+            </div>
+            <button type="submit">Registrarse</button>
+        </form>
+        <div class="login-text">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></div>
+    </div>
+
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('regPassword');
+
+        togglePassword.addEventListener('click', () => {
+            const isVisible = passwordField.type === 'text';
+            passwordField.type = isVisible ? 'password' : 'text';
+            togglePassword.src = isVisible
+                ? 'https://cdn-icons-png.flaticon.com/512/159/159604.png'
+                : 'https://cdn-icons-png.flaticon.com/512/565/565655.png';
+        });
+
+
+        const documentType = document.getElementById('regDocumentType');
+        const documentNumber = document.getElementById('regDocumentNumber');
+
+        documentNumber.addEventListener('input', () => {
+            documentNumber.value = documentNumber.value.replace(/\D/g, '');
+        });
+
+        documentType.addEventListener('change', () => {
+            if (documentType.value === 'DNI') {
+                documentNumber.maxLength = 8;
+                documentNumber.placeholder = 'Ingresa 8 dígitos';
+            } else {
+                documentNumber.maxLength = 20;
+                documentNumber.placeholder = 'Ingresa 20 dígitos';
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const type = documentType.value;
+            const number = documentNumber.value.trim();
+
+            if (type === 'DNI' && number.length !== 8) {
+                alert('El DNI debe tener exactamente 8 dígitos.');
+                return;
+            }
+            if (type === 'Carnet de Extranjería' && (number.length < 1 || number.length > 20)) {
+                alert('El Carnet de Extranjería debe tener entre 1 y 20 dígitos.');
+                return;
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('regName').value,
+                lastname: document.getElementById('regLastname').value,
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value,
+                document_type: document.getElementById('regDocumentType').value,
+                document_number: document.getElementById('regDocumentNumber').value,
+                phone: document.getElementById('regPhone').value
+            };
+
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Usuario registrado con éxito');
+                window.location.href = 'login.html';
+            } else {
+                alert(data.error || 'Error al registrarse');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

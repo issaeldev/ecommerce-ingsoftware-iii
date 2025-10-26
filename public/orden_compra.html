@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Órdenes de Compra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+    <style>
+        main {
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        .order-container {
+            max-width: 1200px;
+            margin: 0 auto; 
+            padding: 20px;
+        }
+
+        .order-header {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .controles-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filtro-item label {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"], input[type="date"], .controles-container button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .controles-container button {
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .controles-container button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #tabla-ordenes {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #tabla-ordenes th, #tabla-ordenes td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            font-size: 14px;
+        }
+
+        #tabla-ordenes th {
+            background-color: var(--secondary-color);
+            color: #ecf0f1;
+        }
+
+        #tabla-ordenes tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        #tabla-ordenes tfoot td {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="index.html" class="brand">UrbanStyle</a>
+            </div>
+            <div class="nav-center">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li class="dropdown" id="adminLink" style="display: none;">
+                        <a href="#">Gestionar</a>
+                        <div class="dropdown-content">
+                            <a href="add-product.html">Añadir producto</a>
+                            <a href="inventario.html">Ver inventario</a>
+                        </div>
+                    </li>
+                    <li id="ordenesLink" style="display: none;"><a href="orden_compra.html">Órdenes</a></li>
+                    <li id="reportesLink" style="display: none;"><a href="detalle_compra.html">Reportes</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <ul>
+                    <li id="loginLink"><a href="login.html">Iniciar Sesión</a></li>
+                    <li id="registerLink"><a href="register.html">Registrarse</a></li>
+                    <li id="logoutLink" style="display: none;"><a href="#">Cerrar sesión</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-link" data-testid="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cartCount" data-testid="cart-count">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        <div class="mobile-nav" id="mobile-nav"></div>
+    </header>
+
+    <main>
+        <div class="order-container">
+            <h1 class="order-header">Órdenes de Compra</h1>
+
+            <div class="controles-container">
+                <div class="filtros">
+                    <div class="filtro-item">
+                        <label for="filtro-orden">Filtrar por ID Orden:</label>
+                        <input type="text" id="filtro-orden" placeholder="Ej: 22">
+                    </div>
+                    <div class="filtro-item">
+                        <label for="filtro-usuario">Filtrar por ID Usuario:</label>
+                        <input type="text" id="filtro-usuario" placeholder="Ej: 37">
+                    </div>
+                    <div class="filtro-item">
+                        <label for="filtro-fecha">Filtrar por Fecha:</label>
+                        <input type="date" id="filtro-fecha">
+                    </div>
+                </div>
+                <div class="acciones">
+                    <button id="btn-filtrar">Filtrar</button>
+                    <button id="btn-mostrar-todos">Mostrar Todos</button>
+                </div>
+            </div>
+
+            <table id="tabla-ordenes">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>ID Usuario</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="ordenCompraBody"></tbody>
+                <tfoot id="ordenCompraFoot"></tfoot>
+            </table>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h4>Sobre nosotros</h4>
+                <p>Tu tienda de confianza para la moda urbana. Ofrecemos las últimas tendencias con la mejor calidad y estilo.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#">Catálogo</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Soporte</h4>
+                <ul>
+                    <li><a href="#">Preguntas Frecuentes</a></li>
+                    <li><a href="#">Envíos y Devoluciones</a></li>
+                    <li><a href="#">Política de Privacidad</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 UrbanStyle. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            const token = user ? user.token : null;
+
+            if (!token) {
+                alert("Debes iniciar sesión para ver tus órdenes.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            let todasLasOrdenes = [];
+
+            fetch('/api/orden_compra', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || 'No se pudo cargar la información.'); });
+                }
+                return res.json();
+            })
+            .then(data => {
+                todasLasOrdenes = data;
+                renderTabla(todasLasOrdenes);
+            })
+            .catch(err => {
+                const tbody = document.getElementById("ordenCompraBody");
+                tbody.innerHTML = `<tr><td colspan="4" style="color:red;text-align:center;">${err.message}</td></tr>`;
+            });
+            
+            function renderTabla(ordenes) {
+                const tbody = document.getElementById("ordenCompraBody");
+                tbody.innerHTML = "";
+                if (ordenes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No se encontraron órdenes.</td></tr>';
+                } else {
+                    ordenes.forEach(orden => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${orden.id}</td>
+                            <td>${new Date(orden.fecha).toLocaleString('es-ES')}</td>
+                            <td>${orden.id_usuario || 'N/A'}</td>
+                            <td>S/ ${parseFloat(orden.total).toFixed(2)}</td>`;
+                        tbody.appendChild(tr);
+                    });
+                }
+                actualizarTotal(ordenes);
+            }
+
+            function actualizarTotal(ordenes) {
+                const tfoot = document.getElementById("ordenCompraFoot");
+                const totalVisible = ordenes.reduce((sum, orden) => sum + parseFloat(orden.total), 0);
+                tfoot.innerHTML = `<tr><td colspan="3" style="text-align: right;">Importe Total</td><td>S/ ${totalVisible.toFixed(2)}</td></tr>`;
+            }
+
+            const filtroOrden = document.getElementById('filtro-orden');
+            const filtroUsuario = document.getElementById('filtro-usuario');
+            const filtroFecha = document.getElementById('filtro-fecha');
+            const btnFiltrar = document.getElementById('btn-filtrar');
+            const btnMostrarTodos = document.getElementById('btn-mostrar-todos');
+
+            btnFiltrar.addEventListener('click', () => {
+                const textoFiltroOrden = filtroOrden.value.trim();
+                const textoFiltroUsuario = filtroUsuario.value.trim();
+                const textoFiltroFecha = filtroFecha.value;
+
+                const ordenesFiltradas = todasLasOrdenes.filter(orden => {
+                    const fechaDeOrdenObj = new Date(orden.fecha);
+                    const fechaDeOrden = `${fechaDeOrdenObj.getFullYear()}-${String(fechaDeOrdenObj.getMonth() + 1).padStart(2, '0')}-${String(fechaDeOrdenObj.getDate()).padStart(2, '0')}`;
+
+                    const coincideOrden = !textoFiltroOrden || String(orden.id).includes(textoFiltroOrden);
+                    const coincideUsuario = !textoFiltroUsuario || String(orden.id_usuario).includes(textoFiltroUsuario);
+                    const coincideFecha = !textoFiltroFecha || fechaDeOrden === textoFiltroFecha;
+
+                    return coincideOrden && coincideUsuario && coincideFecha;
+                });
+                
+                renderTabla(ordenesFiltradas);
+            });
+
+            btnMostrarTodos.addEventListener('click', () => {
+                filtroOrden.value = '';
+                filtroUsuario.value = '';
+                filtroFecha.value = '';
+                renderTabla(todasLasOrdenes);
+            });
+        });
+    </script>
+</body>
+</html>

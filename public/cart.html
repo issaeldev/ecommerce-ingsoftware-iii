@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        main {
+            margin-top: 0;  
+            padding-top: 0; 
+        }
+
+        .cart-container {
+            max-width: 1200px; 
+            margin: 20px auto; 
+            padding: 20px;
+        }
+
+        .cart-header {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 10px;
+        }
+
+        .cart-layout {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+        }
+
+        .cart-items-column {
+            flex: 2; 
+        }
+        
+        .cart-summary-column {
+            flex: 1; 
+            position: sticky; 
+            top: 80px;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cart-item-image img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cart-item-details h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .item-meta {
+            font-size: 0.9em;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .item-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-controls button {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border-color);
+            background-color: #fff;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .quantity-controls span {
+            padding: 0 15px;
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .delete-btn:hover {
+            text-decoration: underline;
+        }
+
+        .cart-summary {
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .summary-row.total {
+            font-weight: bold;
+            font-size: 1.3em;
+            border-top: 2px solid var(--border-color);
+            padding-top: 15px;
+        }
+        
+        #checkoutButton {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #checkoutButton:hover {
+            background-color: #c0392b;
+        }
+
+        .empty-cart-message {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1.2em;
+        }
+
+        .cart-footer-actions {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+        
+        .continue-shopping-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background-color: transparent;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        .continue-shopping-btn:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .cart-layout {
+                flex-direction: column;
+            }
+            .cart-summary-column {
+                position: static; 
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cart-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .item-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .cart-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="index.html" class="brand">UrbanStyle</a>
+            </div>
+            <div class="nav-center">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li id="misComprasLink" style="display: none;"><a href="mis-compras.html">Mis Compras</a></li>
+                    
+                    <li class="dropdown" id="adminLink" style="display: none;">
+                        <a href="#">Gestionar</a>
+                        <div class="dropdown-content">
+                            <a href="add-product.html">Añadir producto</a>
+                            <a href="inventario.html">Ver inventario</a>
+                        </div>
+                    </li>
+                    <li id="ordenesLink" style="display: none;"><a href="orden_compra.html">Órdenes</a></li>
+                    <li id="reportesLink" style="display: none;"><a href="detalle_compra.html">Reportes</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <ul>
+                    <li id="loginLink"><a href="login.html">Iniciar Sesión</a></li>
+                    <li id="registerLink"><a href="register.html">Registrarse</a></li>
+                    <li id="logoutLink" style="display: none;"><a href="#">Cerrar sesión</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-link" data-testid="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cartCount" data-testid="cart-count">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        <div class="mobile-nav" id="mobile-nav"></div>
+    </header>
+
+    <main>
+        <div class="cart-container">
+            <h2 class="cart-header">Carrito de Compras</h2>
+            <div class="cart-layout">
+                <div id="cartItemsContainer" class="cart-items-column">
+                    </div>
+                <div id="cartSummaryContainer" class="cart-summary-column">
+                    </div>
+            </div>
+            <div class="cart-footer-actions">
+                <a href="index.html" class="continue-shopping-btn">Continuar comprando</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h4>Sobre nosotros</h4>
+                <p>Tu tienda de confianza para la moda urbana. Ofrecemos las últimas tendencias con la mejor calidad y estilo.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#">Catálogo</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Soporte</h4>
+                <ul>
+                    <li><a href="#">Preguntas Frecuentes</a></li>
+                    <li><a href="#">Envíos y Devoluciones</a></li>
+                    <li><a href="#">Política de Privacidad</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 UrbanStyle. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            function displayCart() {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const itemsContainer = document.getElementById('cartItemsContainer');
+                const summaryContainer = document.getElementById('cartSummaryContainer');
+                const footerActions = document.querySelector('.cart-footer-actions');
+                
+                itemsContainer.innerHTML = '';
+                summaryContainer.innerHTML = '';
+
+                if (cart.length === 0) {
+                    itemsContainer.innerHTML = '<p class="empty-cart-message">No hay productos en el carrito.</p>';
+                    footerActions.style.display = 'block'; 
+                    return;
+                }
+
+                let total = 0;
+                cart.forEach((item, index) => {
+                    const itemQuantity = item.quantity || 1;
+                    const itemPrice = parseFloat(item.price_base) || 0;
+                    const subtotal = itemPrice * itemQuantity;
+                    total += subtotal;
+                    
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'cart-item';
+                    itemDiv.innerHTML = `
+                        <div class="cart-item-image">
+                            <img src="${item.image}" alt="${item.name}">
+                        </div>
+                        <div class="cart-item-details">
+                            <h3>${item.name || 'Producto'}</h3>
+                            <p class="item-meta">Talla: ${item.selectedSize || 'N/A'} | Color: ${item.selectedColor ? item.selectedColor.name : 'N/A'}</p>
+                            <p>Precio unitario: S/ ${itemPrice.toFixed(2)}</p>
+                            <div class="item-actions">
+                                <div class="quantity-controls">
+                                    <button class="quantity-decrease" data-index="${index}">-</button>
+                                    <span>${itemQuantity}</span>
+                                    <button class="quantity-increase" data-index="${index}">+</button>
+                                </div>
+                                <p><strong>S/ ${subtotal.toFixed(2)}</strong></p>
+                                <button class="delete-btn" data-index="${index}">Eliminar</button>
+                            </div>
+                        </div>
+                    `;
+                    itemsContainer.appendChild(itemDiv);
+                });
+
+                summaryContainer.innerHTML = `
+                    <div class="cart-summary">
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span>S/ ${total.toFixed(2)}</span>
+                        </div>
+                        <button id="checkoutButton">Pagar</button>
+                    </div>
+                `;
+
+                document.querySelectorAll('.quantity-decrease').forEach(btn => btn.addEventListener('click', () => updateQuantity(btn.dataset.index, -1)));
+                document.querySelectorAll('.quantity-increase').forEach(btn => btn.addEventListener('click', () => updateQuantity(btn.dataset.index, 1)));
+                document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => removeFromCart(btn.dataset.index)));
+                document.getElementById('checkoutButton').addEventListener('click', checkout);
+            }
+
+            function updateQuantity(index, delta) {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (!cart[index]) return;
+                cart[index].quantity = (cart[index].quantity || 1) + delta;
+                if (cart[index].quantity < 1) cart[index].quantity = 1;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                displayCart();
+                updateCartCount();
+            }
+
+            function removeFromCart(index) {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart.splice(index, 1);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                displayCart();
+                updateCartCount();
+            }
+
+            function checkout() {
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const user = JSON.parse(sessionStorage.getItem('user')) || null;
+                if (cart.length === 0) {
+                    alert("No hay productos en el carrito para pagar.");
+                    return;
+                }
+                if (!user || !user.token) {
+                    alert("Debes iniciar sesión para poder pagar.");
+                    window.location.href = 'login.html';
+                    return;
+                }
+                const total = cart.reduce((acc, item) => acc + (parseFloat(item.price_base || 0) * (item.quantity || 1)), 0);
+                if (confirm("¿Deseas confirmar la compra por un total de S/ " + total.toFixed(2) + "?")) {
+                    fetch('/api/orden_compra', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` },
+                        body: JSON.stringify({
+                            total,
+                            items: cart.map(item => ({ id: item.id, quantity: item.quantity || 1, price_base: item.price_base }))
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) return response.json();
+                        return response.json().then(err => { throw new Error(err.error || 'Error del servidor.'); });
+                    })
+                    .then(data => {
+                        localStorage.removeItem('cart');
+                        alert('¡Compra realizada con éxito!');
+                        window.location.href = 'index.html';
+                    })
+                    .catch(err => {
+                        alert("Error al procesar la compra: " + err.message);
+                    });
+                }
+            }
+            
+            displayCart();
+        });
+    </script>
+</body>
+</html>

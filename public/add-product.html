@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Añadir Prenda</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+    <style>
+        main {
+            margin-top: 0;
+            padding-top: 0;
+        }
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto; 
+            padding: 20px;
+        }
+        .form-header {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+        .product-form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .price-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .price-wrapper span {
+            padding: 10px;
+            background-color: var(--light-gray);
+            border: 1px solid var(--border-color);
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+        }
+        .price-wrapper input {
+            border-radius: 0 5px 5px 0;
+        }
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .color-box:hover {
+            transform: scale(1.1);
+        }
+        .color-box.selected {
+            border-color: var(--primary-color);
+        }
+        .submit-btn {
+            grid-column: 1 / -1;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="index.html" class="brand">UrbanStyle</a>
+            </div>
+            <div class="nav-center">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li class="dropdown" id="adminLink" style="display: none;">
+                        <a href="#">Gestionar</a>
+                        <div class="dropdown-content">
+                            <a href="add-product.html">Añadir producto</a>
+                            <a href="inventario.html">Ver inventario</a>
+                        </div>
+                    </li>
+                    <li id="ordenesLink" style="display: none;"><a href="orden_compra.html">Órdenes</a></li>
+                    <li id="reportesLink" style="display: none;"><a href="detalle_compra.html">Reportes</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <ul>
+                    <li id="loginLink"><a href="login.html">Iniciar Sesión</a></li>
+                    <li id="registerLink"><a href="register.html">Registrarse</a></li>
+                    <li id="logoutLink" style="display: none;"><a href="#">Cerrar sesión</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-link" data-testid="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cartCount" data-testid="cart-count">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        <div class="mobile-nav" id="mobile-nav"></div>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h1 class="form-header">Añadir Prenda</h1>
+            <form id="productForm" class="product-form">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="name">Nombre</label>
+                        <input id="name" name="name" required type="text" placeholder="Ej: Polo Clásico de Algodón" pattern="[a-zA-Z0-9\s]+" title="El nombre solo puede contener letras, números y espacios." />
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="description">Descripción</label>
+                        <input id="description" name="description" type="text" placeholder="Ej: Suave y cómodo para el uso diario" />
+                    </div>
+                    <div class="form-group">
+                        <label for="genderSelect">Género</label>
+                        <select id="genderSelect" name="gender" required>
+                            <option value="">Seleccionar</option>
+                            <option value="Hombre">Hombre</option>
+                            <option value="Mujer">Mujer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categorySelect">Categoría</label>
+                        <select id="categorySelect" name="category" required></select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="sizeSelect">Tallas disponibles (selecciona una o más)</label>
+                        <select id="sizeSelect" multiple name="sizes" required style="height: 100px;"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Precio</label>
+                        <div class="price-wrapper">
+                            <span>S/</span>
+                            <input id="price" name="price_base" placeholder="0.00" required type="text" inputmode="decimal">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Seleccionar colores</label>
+                        <div class="color-palette" id="colorPalette"></div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="image">URL de imagen</label>
+                        <input id="image" name="image" placeholder="https://ejemplo.com/imagen.jpg" required type="url" />
+                    </div>
+                    <button class="submit-btn" type="submit">Añadir Prenda</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h4>Sobre nosotros</h4>
+                <p>Tu tienda de confianza para la moda urbana. Ofrecemos las últimas tendencias con la mejor calidad y estilo.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#">Catálogo</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Soporte</h4>
+                <ul>
+                    <li><a href="#">Preguntas Frecuentes</a></li>
+                    <li><a href="#">Envíos y Devoluciones</a></li>
+                    <li><a href="#">Política de Privacidad</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 UrbanStyle. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            if (!user || !user.isAdmin) {
+                alert("Acceso no autorizado.");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            //Formulario
+            const categories = { Hombre: { superiores: ["Polo", "Camisa", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"], inferiores: ["Pantalón", "Jeans", "Short"] }, Mujer: { superiores: ["Polo", "Blusa", "Top", "Camiseta", "Polo Manga Cero", "Casaca", "Polera", "Blazer", "Saco", "Chaleco"], inferiores: ["Pantalón", "Jeans", "Short", "Falda", "Leggins"] } };
+            const tallasSuperiores = ["XS", "S", "M", "L", "XL", "2XL"];
+            const tallasInferiores = ["28", "30", "32", "34", "36", "38", "40", "42", "44"];
+            const predefinedColors = [ { name: "Negro", code: "#000000" }, { name: "Blanco", code: "#FFFFFF" }, { name: "Gris claro", code: "#D3D3D3" }, { name: "Gris oscuro", code: "#555555" }, { name: "Azul marino", code: "#001F3F" }, { name: "Beige", code: "#F5F5DC" }, { name: "Verde militar", code: "#4B5320" }, { name: "Verde oscuro", code: "#006400" }, { name: "Rojo", code: "#FF0000" }, { name: "Rosado", code: "#FFC0CB" }, { name: "Marrón", code: "#8B4513" }, { name: "Celeste", code: "#87CEEB" }, { name: "Amarillo", code: "#FFFF00" }, { name: "Naranja", code: "#FFA500" } ];
+
+            const genderSelect = document.getElementById("genderSelect");
+            const categorySelect = document.getElementById("categorySelect");
+            const sizeSelect = document.getElementById("sizeSelect");
+            const palette = document.getElementById("colorPalette");
+            const priceInput = document.getElementById("price");
+            const productForm = document.getElementById("productForm");
+
+            predefinedColors.forEach(color => {
+                const div = document.createElement("div");
+                div.className = "color-box";
+                div.style.backgroundColor = color.code;
+                div.title = color.name;
+                div.dataset.name = color.name;
+                div.dataset.code = color.code;
+                div.addEventListener("click", () => div.classList.toggle("selected"));
+                palette.appendChild(div);
+            });
+
+            genderSelect.addEventListener("change", updateCategoryOptions);
+            categorySelect.addEventListener("change", updateSizeOptions);
+
+            function updateCategoryOptions() {
+                const gender = genderSelect.value;
+                categorySelect.innerHTML = "<option value=''>Seleccionar</option>";
+                if (!gender) return;
+                const options = [ ...categories[gender].superiores.map(cat => ({ cat, tipo: "superior" })), ...categories[gender].inferiores.map(cat => ({ cat, tipo: "inferior" })) ];
+                for (const opt of options) {
+                    const option = new Option(opt.cat, opt.cat);
+                    option.dataset.tipo = opt.tipo;
+                    categorySelect.add(option);
+                }
+                updateSizeOptions();
+            }
+
+            function updateSizeOptions() {
+                const selectedOption = categorySelect.selectedOptions[0];
+                sizeSelect.innerHTML = "";
+                if (!selectedOption) return;
+                const tipo = selectedOption.dataset.tipo;
+                const tallas = tipo === "superior" ? tallasSuperiores : tallasInferiores;
+                tallas.forEach(talla => sizeSelect.add(new Option(talla, talla)));
+            }
+
+            priceInput.addEventListener("input", () => {
+                let val = priceInput.value.replace(/[^\d.]/g, "");
+                const parts = val.split(".");
+                if (parts.length > 2) val = parts[0] + "." + parts[1];
+                if (parts[1]?.length > 2) val = parts[0] + "." + parts[1].slice(0, 2);
+                priceInput.value = val;
+            });
+            
+            productForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                const selectedColors = [...document.querySelectorAll(".color-box.selected")].map(box => ({ name: box.dataset.name, code: box.dataset.code }));
+                if (selectedColors.length === 0) {
+                    alert("Por favor, selecciona al menos un color.");
+                    return;
+                }
+                
+                const form = e.target;
+                const data = {
+                    name: form.name.value,
+                    description: form.description.value,
+                    category: form.category.value,
+                    gender: form.gender.value,
+                    colors_json: JSON.stringify(selectedColors),
+                    sizes: [...form.sizes.selectedOptions].map(opt => opt.value),
+                    price_base: parseFloat(form.price_base.value),
+                    image: form.image.value
+                };
+
+                try {
+                    const res = await fetch("/api/products", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${user.token}` },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await res.json();
+                    if (res.ok) {
+                        alert("Producto añadido con éxito. SKU: " + result.sku);
+                        form.reset();
+                        updateCategoryOptions();
+                        document.querySelectorAll(".color-box.selected").forEach(box => box.classList.remove("selected"));
+                    } else {
+                        alert("Error al añadir producto: " + (result.error || "Desconocido"));
+                    }
+                } catch (err) {
+                    alert("Error de red al añadir el producto.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

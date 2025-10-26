@@ -1,0 +1,29 @@
+Cuenta Administrador:
+admin@urbanstyle.com
+admin123
+
+Requisitos:
+Node.js instalado
+SQLite instalado
+
+Ingresar el código en el terminal:
+npm install express sqlite3 bcrypt cors mocha chai selenium-webdriver chromedriver
+
+Abrir el terminal desde la carpeta raíz e ingresar el siguiente código para levantar el servidor:
+node server.js
+
+Pruebas:
+login
+    npm run test:login-credentials
+    npm run test:login-validation
+    npm run test:login-toggle
+crud
+    npm run test:crud-add
+    npm run test:crud-edit
+    npm run test:crud-add
+
+Luego abrir "http://localhost:3000" en el navegador
+
+Base de Datos:
+- Se usa SQLite (database.sqlite)
+- Si el administrador no está creado, se debe insertar manualmente con "isAdmin = 1" o crear directamente en sqlite

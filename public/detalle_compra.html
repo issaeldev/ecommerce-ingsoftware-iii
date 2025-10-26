@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Reporte de Ventas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+    <style>
+        main {
+            margin-top: 0;  
+            padding-top: 0; 
+        }
+
+        .report-container {
+            max-width: 1200px;
+            margin: 0 auto; 
+            padding: 20px;
+        }
+
+        .report-header {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+        
+        .controles-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filtro-item label {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"], input[type="date"], .controles-container button {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .controles-container button {
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .controles-container button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #tabla-detalles {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #tabla-detalles th, #tabla-detalles td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            font-size: 14px;
+        }
+
+        #tabla-detalles th {
+            background-color: var(--secondary-color);
+            color: #ecf0f1;
+        }
+
+        #tabla-detalles tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        #tabla-detalles tfoot td {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="index.html" class="brand">UrbanStyle</a>
+            </div>
+            <div class="nav-center">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li class="dropdown" id="adminLink" style="display: none;">
+                        <a href="#">Gestionar</a>
+                        <div class="dropdown-content">
+                            <a href="add-product.html">Añadir producto</a>
+                            <a href="inventario.html">Ver inventario</a>
+                        </div>
+                    </li>
+                    <li id="ordenesLink" style="display: none;"><a href="orden_compra.html">Órdenes</a></li>
+                    <li id="reportesLink" style="display: none;"><a href="detalle_compra.html">Reportes</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <ul>
+                    <li id="loginLink"><a href="login.html">Iniciar Sesión</a></li>
+                    <li id="registerLink"><a href="register.html">Registrarse</a></li>
+                    <li id="logoutLink" style="display: none;"><a href="#">Cerrar sesión</a></li>
+                    <li>
+                        <a href="cart.html" class="cart-link" data-testid="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span id="cartCount" data-testid="cart-count">0</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="hamburger-menu" id="hamburger-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        <div class="mobile-nav" id="mobile-nav"></div>
+    </header>
+
+    <main>
+        <div class="report-container">
+            <h1 class="report-header">Reporte de Ventas</h1>
+
+            <div class="controles-container">
+                <div class="filtros">
+                    <div class="filtro-item">
+                        <label for="filtro-orden">Filtrar por ID Orden:</label>
+                        <input type="text" id="filtro-orden" placeholder="Ej: 22">
+                    </div>
+                    <div class="filtro-item">
+                        <label for="filtro-usuario">Filtrar por ID Usuario:</label>
+                        <input type="text" id="filtro-usuario" placeholder="Ej: 37">
+                    </div>
+                    <div class="filtro-item">
+                        <label for="filtro-producto">Filtrar por ID Producto:</label>
+                        <input type="text" id="filtro-producto" placeholder="Ej: 41">
+                    </div>
+                    <div class="filtro-item">
+                        <label for="filtro-fecha">Filtrar por Fecha:</label>
+                        <input type="date" id="filtro-fecha">
+                    </div>
+                </div>
+                <div class="acciones">
+                    <button id="btn-filtrar">Filtrar</button>
+                    <button id="btn-mostrar-todos">Mostrar Todos</button>
+                </div>
+            </div>
+
+            <table id="tabla-detalles">
+                <thead>
+                    <tr>
+                        <th>ID Orden</th>
+                        <th>Fecha y Hora</th>
+                        <th>Nombre Completo</th>
+                        <th>ID Usuario</th>
+                        <th>Email</th>
+                        <th>ID Producto</th>
+                        <th>Cantidad</th>
+                        <th>Importe</th>
+                    </tr>
+                </thead>
+                <tbody id="detalleCompraBody"></tbody>
+                <tfoot id="detalleCompraFoot"></tfoot>
+            </table>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h4>Sobre nosotros</h4>
+                <p>Tu tienda de confianza para la moda urbana. Ofrecemos las últimas tendencias con la mejor calidad y estilo.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#">Catálogo</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Soporte</h4>
+                <ul>
+                    <li><a href="#">Preguntas Frecuentes</a></li>
+                    <li><a href="#">Envíos y Devoluciones</a></li>
+                    <li><a href="#">Política de Privacidad</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 UrbanStyle. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            const token = user ? user.token : null;
+            
+            if (!token || !user.isAdmin) {
+                alert('Acceso no autorizado.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            fetch('/api/detalle_compra', { headers: { 'Authorization': 'Bearer ' + token } })
+            .then(res => res.ok ? res.json() : res.json().then(err => Promise.reject(err)))
+            .then(data => {
+                const tbody = document.getElementById("detalleCompraBody");
+                tbody.innerHTML = "";
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No hay detalles de compra.</td></tr>';
+                    return;
+                }
+
+                data.forEach(detalle => {
+                    const tr = document.createElement("tr");
+                    const importeTotal = detalle.cantidad * detalle.precio_unitario;
+                    const fechaObj = new Date(detalle.fecha);
+                    const fechaFormateada = fechaObj.toLocaleDateString('es-ES') + ' ' + fechaObj.toLocaleTimeString('es-ES');
+
+                    tr.innerHTML = `
+                        <td>${detalle.id_orden}</td>
+                        <td>${fechaFormateada}</td>
+                        <td>${(detalle.name || '') + ' ' + (detalle.lastname || '')}</td>
+                        <td>${detalle.usuario_id}</td>
+                        <td>${detalle.email}</td>
+                        <td>${detalle.id_producto}</td>
+                        <td>${detalle.cantidad}</td>
+                        <td>S/ ${importeTotal.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                actualizarTotal();
+            })
+            .catch(error => {
+                document.getElementById("detalleCompraBody").innerHTML = `<tr><td colspan="8" style="color:red;text-align:center;">Error: ${error.message || 'No se pudo cargar'}</td></tr>`;
+            });
+
+            function actualizarTotal() {
+                const tablaBody = document.getElementById("detalleCompraBody");
+                const tfoot = document.getElementById("detalleCompraFoot");
+                const filas = tablaBody.getElementsByTagName('tr');
+                let totalVisible = 0;
+
+                for (const fila of filas) {
+                    if (fila.style.display !== 'none') {
+                        const celdaImporte = fila.getElementsByTagName('td')[7]; 
+                        if (celdaImporte) {
+                            const valorTexto = celdaImporte.textContent.replace('S/ ', '').trim();
+                            const valorNumerico = parseFloat(valorTexto);
+                            if (!isNaN(valorNumerico)) {
+                                totalVisible += valorNumerico;
+                            }
+                        }
+                    }
+                }
+                tfoot.innerHTML = `<tr><td colspan="7" style="text-align: right;">Importe Total</td><td>S/ ${totalVisible.toFixed(2)}</td></tr>`;
+            }
+
+            const filtroOrden = document.getElementById('filtro-orden');
+            const filtroUsuario = document.getElementById('filtro-usuario');
+            const filtroProducto = document.getElementById('filtro-producto');
+            const filtroFecha = document.getElementById('filtro-fecha');
+            const btnFiltrar = document.getElementById('btn-filtrar');
+            const btnMostrarTodos = document.getElementById('btn-mostrar-todos');
+
+            btnFiltrar.addEventListener('click', () => {
+                const textoFiltroOrden = filtroOrden.value.trim();
+                const textoFiltroUsuario = filtroUsuario.value.trim();
+                const textoFiltroProducto = filtroProducto.value.trim();
+                const textoFiltroFecha = filtroFecha.value;
+                const tablaBody = document.getElementById("detalleCompraBody");
+                const filas = tablaBody.getElementsByTagName('tr');
+                
+                for (const fila of filas) {
+                    const celdas = fila.getElementsByTagName('td');
+                    const idOrden = celdas[0].textContent;
+                    const fechaTexto = celdas[1].textContent.split(' ')[0];
+                    const idUsuario = celdas[3].textContent;
+                    const idProducto = celdas[5].textContent;
+
+                    const partesFecha = fechaTexto.split('/');
+                    const fechaFormateadaTabla = `${partesFecha[2]}-${partesFecha[1].padStart(2, '0')}-${partesFecha[0].padStart(2, '0')}`;
+
+                    const coincideOrden = !textoFiltroOrden || idOrden.includes(textoFiltroOrden);
+                    const coincideUsuario = !textoFiltroUsuario || idUsuario.includes(textoFiltroUsuario);
+                    const coincideProducto = !textoFiltroProducto || idProducto.includes(textoFiltroProducto);
+                    const coincideFecha = !textoFiltroFecha || fechaFormateadaTabla === textoFiltroFecha;
+
+                    fila.style.display = (coincideOrden && coincideUsuario && coincideProducto && coincideFecha) ? "" : "none";
+                }
+                actualizarTotal();
+            });
+
+            btnMostrarTodos.addEventListener('click', () => {
+                const tablaBody = document.getElementById("detalleCompraBody");
+                const filas = tablaBody.getElementsByTagName('tr');
+                for (const fila of filas) {
+                    fila.style.display = "";
+                }
+                filtroOrden.value = '';
+                filtroUsuario.value = '';
+                filtroProducto.value = '';
+                filtroFecha.value = '';
+                actualizarTotal();
+            });
+        });
+    </script>
+</body>
+</html>
