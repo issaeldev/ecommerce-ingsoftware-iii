@@ -13,15 +13,18 @@ Abrir el terminal desde la carpeta raíz e ingresar el siguiente código para le
 node server.js
 
 Pruebas:
-login
+- login (funcionales)
     npm run test:login
-crud
+- crud (funcionales)
     npm run test:crud
 
-Pruebas de integración:
+- unitarias
+    npm run test:unit
+
+- integración:
     npm run test:integration
 
-Pruebas de rendimiento:
+- rendimiento:
     k6 run performance.test.js
 
 Luego abrir "http://localhost:3000" en el navegador

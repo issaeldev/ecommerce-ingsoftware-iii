@@ -137,14 +137,42 @@ describe('Pruebas de Integración para E-commerce API', () => {
     let orderId = 0;
 
     beforeAll(async () => {
+        // Crear un producto de prueba para las compras
+        const adminLoginRes = await request(app).post('/api/login').send({
+            email: 'admin@urbanstyle.com',
+            password: 'admin123'
+        });
+        const adminTokenLocal = adminLoginRes.body.token;
+        
+        await request(app)
+            .post('/api/products')
+            .set('Authorization', `Bearer ${adminTokenLocal}`)
+            .send({
+                name: 'Producto Test Compra',
+                description: 'Producto para pruebas de compra',
+                category: 'Polo',
+                gender: 'Hombre',
+                colors_json: '[{"name":"Negro","code":"#000000"}]',
+                sizes: 'M,L',
+                price_base: 49.99,
+                image: 'https://example.com/test-product.jpg'
+            });
+
+        // Registrar y loguear el usuario de prueba
         await request(app).post('/api/register').send({
             name: 'Comprador', lastname: 'Prueba', email: userEmail, password: 'password123',
             document_type: 'DNI', document_number: '87654321', phone: '987654321'
         });
         const loginRes = await request(app).post('/api/login').send({ email: userEmail, password: 'password123' });
         testUserToken = loginRes.body.token;
+        
+        // Obtener el producto creado
         const productsRes = await request(app).get('/api/products');
-        productId = productsRes.body[0].id;
+        if (productsRes.body && productsRes.body.length > 0) {
+            productId = productsRes.body[0].id;
+        } else {
+            throw new Error('No hay productos disponibles para las pruebas de compra');
+        }
     });
 
     it('debe crear una orden de compra con el producto', async () => {

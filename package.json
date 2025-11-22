@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "chromedriver": "^142.0.3",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -9,8 +10,8 @@
   },
   "devDependencies": {
     "chai": "^6.2.0",
-    "chromedriver": "^140.0.4",
     "jest": "^29.0.0",
+    "nyc": "^17.1.0",
     "selenium-webdriver": "^4.38.0",
     "supertest": "^6.3.3"
   },
@@ -25,8 +26,10 @@
     "test:crud-edit": "mocha tests/crud.selenium.test.js --timeout 60000 --grep \"TC-005\"",
     "test:crud-delete": "mocha tests/crud.selenium.test.js --timeout 60000 --grep \"TC-006\"",
     "test:selenium": "npm run test:login-credentials && npm run test:login-validation && npm run test:login-toggle && npm run test:crud-add && npm run test:crud-edit && npm run test:crud-delete",
+    "test:unit": "jest tests/unit.test.js",
     "test:integration": "jest tests/server.test.js",
     "test:all": "npm run test && npm run test:selenium && npm run test:integration",
-    "start": "node server.js"
+    "start": "node server.js",
+    "coverage": "jest tests/unit.test.js tests/server.test.js --coverage"
   }
 }
